@@ -49,6 +49,17 @@ var StoredXSSDosCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		caldera.Driver.Headless = viper.GetBool("headless")
+		driver, cancels, err := setupChrome(caldera)
+		if err != nil {
+			log.WithError(err).Error("failed to setup Chrome")
+			os.Exit(1)
+		}
+
+		defer cancelAll(cancels)
+
+		caldera.Driver = driver
+
 		if err = Login(caldera); err != nil {
 			log.WithError(err).Error("failed to login to caldera")
 			os.Exit(1)
