@@ -66,8 +66,9 @@ var (
 // ChromeDP contains parameters associated with
 // running ChromeDP.
 type ChromeDP struct {
-	Context context.Context
-	Options *[]chromedp.ExecAllocatorOption
+	Context  context.Context
+	Options  *[]chromedp.ExecAllocatorOption
+	Headless bool
 }
 
 // Execute adds child commands to the root
