@@ -65,7 +65,7 @@ var (
 
 			}
 
-			if err := goutils.Cd(caldera.RepoPath); err != nil {
+			if err := goutils.Cd(cwd); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Current Working Directory": cwd,
 				}).Error("failed to navigate back from the caldera repo")

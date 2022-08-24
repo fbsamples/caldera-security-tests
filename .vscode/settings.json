@@ -1,4 +1,6 @@
 {
-  "go.gopath": "/Users/l/.gvm/pkgsets/go1.18/caldera:/Users/l/.gvm/pkgsets/go1.18/global",
-  "go.goroot": "/Users/l/.gvm/gos/go1.18"
+  // "go.gopath": "/Users/l/.gvm/pkgsets/go1.18/caldera:/Users/l/.gvm/pkgsets/go1.18/global",
+  "go.gopath": "/Users/jaysong/.gvm/pkgsets/go1.18/caldera:/Users/jaysong/.gvm/pkgsets/go1.18/global",
+  // "go.goroot": "/Users/l/.gvm/gos/go1.18"
+  "go.goroot": "/Users/jaysong/.gvm/gos/go1.18"
 }
