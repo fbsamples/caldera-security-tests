@@ -10,15 +10,7 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceRoot}",
-      "env": {},
       "args": ["-p", "../caldera", "StoredXSSDos"],
-      "dlvLoadConfig": {
-        "followPointers": true,
-        "maxVariableRecurse": 1,
-        "maxStringLen": 400,
-        "maxArrayValues": 80,
-        "maxStructFields": -1
-      }
     }
   ]
 }
