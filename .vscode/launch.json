@@ -11,9 +11,7 @@
       "mode": "debug",
       "program": "${workspaceRoot}",
       "env": {},
-      "args": ["./bin/cst-darwin", "-p", "../caldera", "TestEnv", "-c"],
-      "host": "127.0.0.1",
-      "port": 58792,
+      "args": ["-p", "../caldera", "StoredXSSDos"],
       "dlvLoadConfig": {
         "followPointers": true,
         "maxVariableRecurse": 1,

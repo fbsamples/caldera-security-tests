@@ -31,6 +31,7 @@ import (
 	"github.com/bitfield/script"
 	"github.com/chromedp/chromedp"
 	goutils "github.com/l50/goutils"
+	log "github.com/sirupsen/logrus"
 )
 
 // Caldera contains parameters associated
@@ -80,6 +81,9 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 	cwd := goutils.Gwd()
 
 	if err := goutils.Cd(calderaPath); err != nil {
+		log.WithFields(log.Fields{
+			"Target Path": calderaPath,
+		}).WithError(err).Error("failed to change directory")
 		return creds, err
 	}
 
@@ -90,12 +94,16 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 	re := regexp.MustCompile("red: [a-z][A-Z]*")
 	_, err := script.Exec("docker compose exec caldera cat conf/local.yml").MatchRegexp(re).Stdout()
 	if err != nil {
+		log.WithError(err).Error("failed to get credentials")
 		return creds, err
 	}
 
 	w.Close()
 	out, err := io.ReadAll(r)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"Target Path": calderaPath,
+		}).WithError(err).Error("failed to retrieve credentials")
 		return creds, err
 	}
 	os.Stdout = rescueStdout
@@ -103,6 +111,9 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 	outSlice := strings.Split(string(out), ":")
 
 	if err := goutils.Cd(cwd); err != nil {
+		log.WithFields(log.Fields{
+			"Target Path": cwd,
+		}).WithError(err).Error("failed to change directory")
 		return creds, err
 	}
 
