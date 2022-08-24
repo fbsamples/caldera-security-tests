@@ -16,8 +16,63 @@ import (
 	"github.com/magefile/mage/sh"
 )
 
+var (
+	err error
+)
+
 func init() {
 	os.Setenv("GO111MODULE", "on")
+}
+
+// Compile Compiles caldera-security-tests for the input operating system.
+//
+// # Example:
+// ```
+// ./magefile compile darwin
+// ```
+//
+// If an operating system is not input, binaries will be created for
+// windows, linux, and darwin.
+func Compile(ctx context.Context, osCli string) error {
+	var operatingSystems []string
+	binName := "cst"
+	binDir := "bin"
+	supportedOS := []string{"windows", "linux", "darwin"}
+
+	if osCli == "all" {
+		operatingSystems = supportedOS
+	} else {
+		if goutils.StringInSlice(osCli, supportedOS) {
+			operatingSystems = []string{osCli}
+		}
+	}
+
+	// Create bin/ if it doesn't already exist
+	if _, err := os.Stat(binDir); os.IsNotExist(err) {
+		if err := os.Mkdir(binDir, os.ModePerm); err != nil {
+			return fmt.Errorf(color.RedString(
+				"failed to create bin dir: %v", err))
+		}
+	}
+
+	for _, os := range operatingSystems {
+		fmt.Printf(color.YellowString(
+			"Compiling caldera-security-tests bin "+
+				"for %s OS, please wait.\n", os))
+		env := map[string]string{
+			"GOOS":   os,
+			"GOARCH": "amd64",
+		}
+
+		binPath := filepath.Join(binDir, fmt.Sprintf("%s-%s", binName, os))
+
+		if err := sh.RunWith(env, "go", "build", "-o", binPath); err != nil {
+			return fmt.Errorf(color.RedString(
+				"failed to create %s bin: %v", binPath, err))
+		}
+	}
+
+	return nil
 }
 
 // InstallDeps Installs go dependencies
@@ -69,97 +124,40 @@ func RunPreCommit() error {
 		return err
 	}
 
-	fmt.Println(color.YellowString("Running all pre-commit hooks locally."))
-	if err := goutils.RunPCHooks(); err != nil {
-		return err
-	}
+	// fmt.Println(color.YellowString("Running all pre-commit hooks locally."))
+	// if err := goutils.RunPCHooks(); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }
 
-// RunTests runs all of the unit tests
-func RunTests() error {
-	mg.Deps(InstallDeps)
+// XSSDos runs the stored XSS vulnerability found since DEF CON 30.
+// func XSSDos() error {
+// 	fmt.Println(color.YellowString("Introducing stored XSS vulnerability #2, please wait..."))
+// 	caldera.Creds, err = getRedCreds()
+// 	if err != nil {
+// 		return err
+// 	}
 
-	fmt.Println(color.YellowString("Running unit tests."))
-	if err := sh.RunV(filepath.Join(".hooks", "go-unit-tests.sh")); err != nil {
-		return fmt.Errorf(color.RedString("failed to run unit tests: %v", err))
-	}
+// 	options := append(chromedp.DefaultExecAllocatorOptions[:],
+// 		// Don't run chrome in headless mode
+// 		chromedp.Flag("headless", false),
+// 	)
 
-	return nil
-}
+// 	// Create allocator context
+// 	allocatorCtx, cancel := chromedp.NewExecAllocator(
+// 		context.Background(), options...)
+// 	defer cancel()
 
-// UpdateMirror updates pkg.go.dev with the release associated with the input tag
-func UpdateMirror(tag string) error {
-	var err error
-	fmt.Println(color.YellowString("Updating pkg.go.dev with the new tag %s.", tag))
+// 	// Create context
+// 	ctx, cancel := chromedp.NewContext(allocatorCtx)
+// 	defer cancel()
 
-	err = sh.RunV("curl", "--silent", fmt.Sprintf(
-		"https://sum.golang.org/lookup/github.com/l50/goproject@%s",
-		tag))
-	if err != nil {
-		return fmt.Errorf(color.RedString("failed to update proxy.golang.org: %w", err))
-	}
+// 	// Point to the
+// 	caldera.URL = "http://localhost:8888/login"
+// 	err = LoginCaldera(caldera)
 
-	err = sh.RunV("curl", "--silent", fmt.Sprintf(
-		"https://proxy.golang.org/github.com/l50/goproject/@v/%s.info",
-		tag))
-	if err != nil {
-		return fmt.Errorf(color.RedString("failed to update pkg.go.dev: %w", err))
-	}
+// 	return nil
 
-	return nil
-}
-
-// Compile Generates a binary (for the input OS if `osCli` is set)
-// or set of binaries associated with the project.
-//
-// Examples:
-//
-// ```bash
-// # macOS
-// ./magefile compile darwin
-// # windows, linux, darwin
-// ./magefile compile all
-// ```
-//
-func Compile(ctx context.Context, osCli string, binName string) error {
-	var operatingSystems []string
-	binDir := "."
-
-	if osCli == "all" {
-		operatingSystems = []string{"windows", "linux", "darwin"}
-	} else {
-		operatingSystems = []string{osCli}
-	}
-
-	if binName == "" {
-		return fmt.Errorf(color.RedString(
-			"failed to input binName! The current value is %s. "+
-				"Try again using this format: ./magefile compile darwin myBin", binName))
-	}
-
-	// Create bin/ if it doesn't already exist
-	if _, err := os.Stat(binDir); os.IsNotExist(err) {
-		if err := os.Mkdir(binDir, os.ModePerm); err != nil {
-			return fmt.Errorf(color.RedString(
-				"failed to create bin dir: %v", err))
-		}
-	}
-
-	for _, os := range operatingSystems {
-		fmt.Printf(color.YellowString("Compiling %s bin for %s OS, please wait.\n", binName, os))
-		env := map[string]string{
-			"GOOS":   os,
-			"GOARCH": "amd64",
-		}
-
-		binPath := filepath.Join(binDir, fmt.Sprintf("%s-%s", binName, os))
-
-		if err := sh.RunWith(env, "go", "build", "-o", binPath); err != nil {
-			return fmt.Errorf(color.RedString("failed to create %s bin: %v", binPath, err))
-		}
-	}
-
-	return nil
-}
+// }

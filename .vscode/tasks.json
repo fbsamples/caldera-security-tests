@@ -4,14 +4,16 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "create mage_output_file.go and run code to debug",
+      "label": "create mage_debug_bin",
       "type": "shell",
-      "command": "mage -d .mage --keep runPreCommit"
+      "command": "mage -d .mage -f -compile ./mage_debug_bin"
+      // "command": "mage --keep reproXSS"
     },
     {
-      "label": "delete mage_output_file.go",
+      "label": "delete mage_debug_bin",
       "type": "shell",
-      "command": "rm -f .mage/mage_output_file.go"
+      "command": "rm -f .mage/mage_debug_bin"
+      // "command": "rm -f mage_output_file.go"
     }
   ]
 }

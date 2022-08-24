@@ -1,11 +1,12 @@
 # Go Project Template
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/l50/goproject)](https://goreportcard.com/report/github.com/l50/goproject)
-[![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/l50/goproject/blob/master/LICENSE)
-[![Tests](https://github.com/l50/goproject/actions/workflows/tests.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/tests.yaml)
-[![🚨 CodeQL Analysis](https://github.com/l50/goproject/actions/workflows/codeql-analysis.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/codeql-analysis.yaml)
-[![🚨 Semgrep Analysis](https://github.com/l50/goproject/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/semgrep.yaml)
-[![Coverage Status](https://coveralls.io/repos/github/l50/goproject/badge.svg?branch=main)](https://coveralls.io/github/l50/goproject?branch=main)
+[![Go Report Card](https://goreportcard.com/badge/github.com/l50/caldera-security-tests)](https://goreportcard.com/report/github.com/l50/goproject)
+[![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/l50/caldera-security-tests/blob/master/LICENSE)
+[![Tests](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/tests.yaml)
+[![🚨 CodeQL Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/codeql-analysis.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/codeql-analysis.yaml)
+[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/semgrep.yaml)
+
+<!-- [![Coverage Status](https://coveralls.io/repos/github/l50/caldera-security-tests/badge.svg?branch=main)](https://coveralls.io/github/l50/goproject?branch=main) -->
 
 This repo provides a base template for a new go project.
 
@@ -58,13 +59,20 @@ that nature.
 
 ## Developer Environment Setup
 
-1. [Fork this project](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+0. [Fork this project](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+
+1. Clone your forked repo and caldera:
+
+   ```bash
+   git clone https://github.com/l50/caldera-security-tests.git
+   git clone https://github.com/mitre/caldera.git
+   ```
 
 2. (Optional) If you installed gvm, create golang pkgset specifically for this project:
 
    ```bash
    VERSION='1.18'
-   PROJECT=goproject
+   PROJECT=caldera-security-tests
 
    gvm install "go${VERSION}"
    gvm use "go${VERSION}"
@@ -90,13 +98,33 @@ that nature.
    ./magefile runPreCommit
    ```
 
+6. Compile binary:
+
+   ```bash
+   ./magefile compile $uname
+   ```
+
 ---
 
 ## Usage
+
+Create test environment:
+
+```bash
+git clone https://github.com/mitre/caldera.git
+git clone https://github.com/l50/caldera-security-tests
+./bin/"cst-$(uname)" -p ../caldera TestEnv -c
+```
+
+Destroy test environment:
+
+```bash
+./bin/"cst-$(uname)" -p ../caldera TestEnv -d
+```
 
 To get started, you will need to:
 
 1. Create a new repo with this template
 2. Replace all instances of PROJECT_NAME,
-   BIN_NAME, l50, and goproject found throughout the codebase
+   BIN_NAME, l50, and caldera-security-tests found throughout the codebase
 3. Customize as needed

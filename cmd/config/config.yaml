@@ -1,0 +1,7 @@
+---
+debug: false
+log_file: true
+log:
+  format: text
+  level: info
+login_url: "http://localhost:8888/login"
