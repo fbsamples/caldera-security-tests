@@ -23,6 +23,7 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"context"
 	"io"
 	"os"
 	"regexp"
@@ -50,6 +51,44 @@ type Credentials struct {
 	Pass string
 }
 
+func cancelAll(cancels []func()) {
+	for _, cancel := range cancels {
+		cancel()
+	}
+}
+
+// setChromeOptions is used to set the chrome
+// parameters required by ChromeDP.
+func setChromeOptions(headless bool) ChromeDP {
+	chromeOpts := ChromeDP{
+		Options: &[]chromedp.ExecAllocatorOption{
+			chromedp.DisableGPU,
+			// chromedp.IgnoreCertErrors,
+			chromedp.NoDefaultBrowserCheck,
+			chromedp.NoFirstRun,
+			chromedp.Flag("headless", headless),
+		},
+	}
+
+	return chromeOpts
+}
+
+func setupChrome(caldera Caldera) (ChromeDP, []func(), error) {
+	var cancels []func()
+
+	// Configure Chrome
+	chrome := setChromeOptions(caldera.Driver.Headless)
+	allocatorCtx, cancel := chromedp.NewExecAllocator(
+		context.Background(), *chrome.Options...)
+
+	cancels = append([]func(){cancel}, cancels...)
+
+	chrome.Context, cancel = chromedp.NewContext(allocatorCtx, chromedp.WithLogf(log.Printf))
+	cancels = append([]func(){cancel}, cancels...)
+
+	return chrome, cancels, nil
+}
+
 // Login logs into Caldera using Google Chrome with the input
 // credentials and returns an authenticated session.
 func Login(caldera Caldera) error {
@@ -67,6 +106,7 @@ func Login(caldera Caldera) error {
 	)
 
 	if err != nil {
+		log.WithError(err).Error("failed to login to Caldera")
 		return err
 	}
 
