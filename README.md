@@ -113,12 +113,14 @@ Create test environment:
 ```bash
 git clone https://github.com/mitre/caldera.git
 git clone https://github.com/l50/caldera-security-tests
+cd caldera-security-tests
 ./bin/"cst-$(uname)" -p ../caldera TestEnv -c
 ```
 
 Destroy test environment:
 
 ```bash
+cd caldera-security-tests
 ./bin/"cst-$(uname)" -p ../caldera TestEnv -d
 ```
 
