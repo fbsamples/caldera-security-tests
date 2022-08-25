@@ -8,7 +8,13 @@ magefile
 coverage-all.out
 
 # Distribution directory for binaries
-dist/
+bin/
+
+# Generated config
+config/*
 
 # Generated images
 images/*
+
+# Generated  log files
+*.log
