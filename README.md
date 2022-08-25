@@ -1,15 +1,15 @@
 # Caldera Security Tests
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/l50/caldera-security-tests/blob/master/LICENSE)
-[![Tests](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml)
-[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)/g(https://github.com/l50/caldera-security-tools/actions/workflows/semgrep.yaml)
+[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/caldera-security-tools/actions/workflows/semgrep.yaml)
 
-Execute two Stored XSS vulnerabilities that were found in MITRE attack by
-[Jayson Grace](https://techvomit.net) from the Meta Purple Team.
+Execute two Stored XSS vulnerabilities that were found in
+[MITRE Caldera](https://github.com/mitre/caldera) by [Jayson Grace](https://techvomit.net)
+from the Meta Purple Team.
 
 ## Table of Contents
 
-- [Findings](docs/REPORT.md)
+- [Report of Findings](docs/REPORT.md)
 - [Usage](#usage)
 - [Development](#development)
   - [Dependencies](#dependencies)
