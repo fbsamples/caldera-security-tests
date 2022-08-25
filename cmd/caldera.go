@@ -107,7 +107,7 @@ func Login(caldera Caldera) (Caldera, error) {
 		chromedp.SendKeys(passSelector, caldera.Creds.Pass),
 		chromedp.Sleep(Wait(1000)),
 		chromedp.Click(loginSelector),
-		chromedp.Sleep(Wait(1000)),
+		chromedp.Sleep(Wait(2000)),
 		chromedp.Click(rocketSelector),
 	)
 
@@ -181,6 +181,8 @@ func listenForNetworkEvent(ctx context.Context) {
 					"Response Body":    resp.StatusText,
 				}).Debug("HTTP Response Information")
 			}
+		default:
+			return
 		}
 	})
 }

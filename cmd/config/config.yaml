@@ -7,6 +7,6 @@ log:
   level: info
 login_url: "http://localhost:8888/login"
 payloads:
-  - "\"><img src=x onerror=prompt(document.domain)>"
+  - "\"><img src=x onerror=prompt(1)>"
 image_path: "./images/StoredXSS"
 repo_path: "../caldera"

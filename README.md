@@ -28,6 +28,12 @@ that nature.
   /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
   ```
 
+- [Install ruby](https://www.ruby-lang.org/en/):
+
+  ```bash
+  brew install ruby
+  ```
+
 - [Install gvm](https://github.com/moovweb/gvm):
 
   ```bash

@@ -41,10 +41,8 @@ func Compile(ctx context.Context, osCli string) error {
 
 	if osCli == "all" {
 		operatingSystems = supportedOS
-	} else {
-		if goutils.StringInSlice(osCli, supportedOS) {
-			operatingSystems = []string{osCli}
-		}
+	} else if goutils.StringInSlice(osCli, supportedOS) {
+		operatingSystems = []string{osCli}
 	}
 
 	// Create bin/ if it doesn't already exist
@@ -131,33 +129,3 @@ func RunPreCommit() error {
 
 	return nil
 }
-
-// XSSDos runs the stored XSS vulnerability found since DEF CON 30.
-// func XSSDos() error {
-// 	fmt.Println(color.YellowString("Introducing stored XSS vulnerability #2, please wait..."))
-// 	caldera.Creds, err = getRedCreds()
-// 	if err != nil {
-// 		return err
-// 	}
-
-// 	options := append(chromedp.DefaultExecAllocatorOptions[:],
-// 		// Don't run chrome in headless mode
-// 		chromedp.Flag("headless", false),
-// 	)
-
-// 	// Create allocator context
-// 	allocatorCtx, cancel := chromedp.NewExecAllocator(
-// 		context.Background(), options...)
-// 	defer cancel()
-
-// 	// Create context
-// 	ctx, cancel := chromedp.NewContext(allocatorCtx)
-// 	defer cancel()
-
-// 	// Point to the
-// 	caldera.URL = "http://localhost:8888/login"
-// 	err = LoginCaldera(caldera)
-
-// 	return nil
-
-// }
