@@ -24,15 +24,14 @@ package cmd
 
 import (
 	"context"
-	"io"
 	"os"
 	"regexp"
 	"strings"
 
-	"github.com/bitfield/script"
 	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	goutils "github.com/l50/goutils"
+	"github.com/magefile/mage/sh"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -41,6 +40,7 @@ import (
 type Caldera struct {
 	Creds    Credentials
 	Driver   ChromeDP
+	HomeURL  string
 	RepoPath string
 	URL      string
 	Payloads []string
@@ -95,6 +95,7 @@ func setupChrome(caldera Caldera) (ChromeDP, []func(), error) {
 // credentials and returns an authenticated session.
 func Login(caldera Caldera) (Caldera, error) {
 	// Selectors for chromeDP
+	rocketSelector := "#home > div.modal.is-active > div.modal-card > footer > button"
 	userSelector := "body > div > div > form > div:nth-child(1) > div > input"
 	passSelector := "body > div > div > form > div:nth-child(2) > div > input"
 	loginSelector := "body > div > div > form > button"
@@ -106,6 +107,8 @@ func Login(caldera Caldera) (Caldera, error) {
 		chromedp.SendKeys(passSelector, caldera.Creds.Pass),
 		chromedp.Sleep(Wait(1000)),
 		chromedp.Click(loginSelector),
+		chromedp.Sleep(Wait(1000)),
+		chromedp.Click(rocketSelector),
 	)
 
 	if err != nil {
@@ -123,47 +126,45 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 	creds := Credentials{}
 	cwd := goutils.Gwd()
 
-	if err := goutils.Cd(calderaPath); err != nil {
+	if err := os.Chdir(calderaPath); err != nil {
 		log.WithFields(log.Fields{
 			"Target Path": calderaPath,
 		}).WithError(err).Error("failed to change directory")
 		return creds, err
 	}
 
-	rescueStdout := os.Stdout
-	rescueStderr := os.Stderr
-	r, w, _ := os.Pipe()
-	os.Stdout = w
-
 	re := regexp.MustCompile("red: [a-z][A-Z]*")
-	_, err = script.Exec("docker-compose exec caldera cat conf/local.yml").MatchRegexp(re).Stdout()
-	if err != nil {
-		log.WithError(err).Error("failed to get credentials")
-		return creds, err
-	}
+	output, err := sh.Output("docker",
+		"compose",
+		"exec",
+		"-T",
+		"caldera",
+		"cat",
+		"conf/local.yml")
 
-	w.Close()
-	out, err := io.ReadAll(r)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"Target Path": calderaPath,
 		}).WithError(err).Error("failed to retrieve credentials")
 		return creds, err
 	}
-	os.Stdout = rescueStdout
-	os.Stderr = rescueStderr
 
-	outSlice := strings.Split(string(out), ":")
+	outSlice := strings.Split(output, "  ")
+	for _, out := range outSlice {
+		if re.Match([]byte(out)) {
+			cSlice := strings.Split(out, ":")
+			creds.User = strings.TrimSpace(cSlice[0])
+			creds.Pass = strings.TrimSpace(cSlice[1])
+		}
+	}
 
-	if err := goutils.Cd(cwd); err != nil {
+	if err := os.Chdir(cwd); err != nil {
 		log.WithFields(log.Fields{
 			"Target Path": cwd,
 		}).WithError(err).Error("failed to change directory")
 		return creds, err
 	}
 
-	creds.User = strings.TrimSpace(outSlice[0])
-	creds.Pass = strings.TrimSpace(outSlice[1])
 	return creds, nil
 }
 

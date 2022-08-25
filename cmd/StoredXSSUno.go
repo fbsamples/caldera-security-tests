@@ -94,13 +94,12 @@ func IntroduceVuln(payload string) error {
 	var buf []byte
 
 	// Selectors for chromeDP
-	rocketSelector := "#home > div.modal.is-active > div.modal-card > footer > button"
 	pageSelector := "#nav-menu > ul:nth-child(2) > li:nth-child(4) > a"
 	createOPSelector := "#select-operation > div:nth-child(3) > button"
 	opNameSelector := "#op-name"
 	startSelector := "#operationsPage > div > div.modal.is-active > div.modal-card > footer > nav > div.level-right > div > button"
 
-	imgPath := viper.GetString("image_path")
+	imagePath := viper.GetString("image_path")
 
 	// listen network event
 	listenForNetworkEvent(caldera.Driver.Context)
@@ -112,7 +111,7 @@ func IntroduceVuln(payload string) error {
 				"Prompt output": ev.Message,
 				"Payload":       payload,
 			}).Info(color.GreenString("Successfully executed payload!!\n" +
-				"Closing the prompt and screenshotting the aftermath"))
+				"Closing the prompt and taking a screenshot of the aftermath"))
 			go func() {
 				if err := chromedp.Run(caldera.Driver.Context,
 					page.HandleJavaScriptDialog(true),
@@ -124,9 +123,6 @@ func IntroduceVuln(payload string) error {
 	})
 	if err := chromedp.Run(caldera.Driver.Context,
 		network.Enable(),
-		chromedp.WaitVisible(rocketSelector),
-		chromedp.Click(rocketSelector),
-		chromedp.Sleep(Wait(1000)),
 		chromedp.Click(pageSelector),
 		chromedp.Sleep(Wait(1000)),
 		chromedp.Click(createOPSelector),
@@ -177,7 +173,7 @@ func IntroduceVuln(payload string) error {
 		return err
 	}
 
-	if err := os.WriteFile(imgPath+"1.png", buf, 0644); err != nil {
+	if err := os.WriteFile(imagePath+"1.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")
 		return err
 	}
