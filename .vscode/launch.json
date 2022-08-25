@@ -10,7 +10,8 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceRoot}",
-      "args": ["--debug", "StoredXSSUno"],
+      // "args": ["--debug", "StoredXSSUno"],
+      "args": ["--debug", "StoredXSSDos"]
     }
   ]
 }

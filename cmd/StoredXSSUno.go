@@ -44,7 +44,7 @@ var StoredXSSUnoCmd = &cobra.Command{
 	Short: "Stored XSS found during DEF CON 30.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(color.YellowString(
-			"Introducing stored XSS vulnerability, please wait..."))
+			"Introducing stored XSS vulnerability #1, please wait..."))
 
 		caldera.URL = viper.GetString("login_url")
 		caldera.RepoPath = viper.GetString("repo_path")
@@ -72,11 +72,10 @@ var StoredXSSUnoCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		caldera.URL = viper.GetString("source_url")
 		caldera.Payloads = viper.GetStringSlice("payloads")
 
 		for _, payload := range caldera.Payloads {
-			if err = IntroduceVuln(payload); err != nil {
+			if err = storedXSSUnoVuln(payload); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Payload": payload,
 				}).Error("failed to introduce the vulnerability")
@@ -89,8 +88,7 @@ func init() {
 	rootCmd.AddCommand(StoredXSSUnoCmd)
 }
 
-// IntroduceVuln introduces a vulnerability into Caldera
-func IntroduceVuln(payload string) error {
+func storedXSSUnoVuln(payload string) error {
 	var buf []byte
 
 	// Selectors for chromeDP
