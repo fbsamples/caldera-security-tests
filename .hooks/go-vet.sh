@@ -5,6 +5,7 @@ pkg=$(go list ./...)
 for dir in */; do
     if [[ "${dir}" != ".mage" ]] \
                               && [[ "${dir}" != "config/" ]] \
+                              && [[ "${dir}" != "cmd/" ]] \
                               && [[ "${dir}" != "bin/" ]] \
                               && [[ "${dir}" != "images/" ]] \
                            && [[ "${dir}" != "resources/" ]] \

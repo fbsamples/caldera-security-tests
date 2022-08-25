@@ -6,8 +6,6 @@
 [![🚨 CodeQL Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/codeql-analysis.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/codeql-analysis.yaml)
 [![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/semgrep.yaml)
 
-<!-- [![Coverage Status](https://coveralls.io/repos/github/l50/caldera-security-tests/badge.svg?branch=main)](https://coveralls.io/github/l50/goproject?branch=main) -->
-
 This repo provides a base template for a new go project.
 
 It is highly opinionated and may not work for your usecase.
@@ -114,17 +112,26 @@ Create test environment:
 git clone https://github.com/mitre/caldera.git
 git clone https://github.com/l50/caldera-security-tests
 cd caldera-security-tests
-./bin/"cst-$(uname)" -p ../caldera TestEnv -c
+# Environment for the first XSS
+./bin/"cst-$(uname)" TestEnv --uno
+# Environment for the second XSS
+./bin/"cst-$(uname)" TestEnv --dos
+```
+
+Run the first XSS:
+
+```bash
+./bin/"cst-$(uname)" StoredXSSUno
+```
+
+Run the second XSS:
+
+```bash
+./bin/"cst-$(uname)" StoredXSSDos
 ```
 
 Destroy test environment:
 
 ```bash
-cd caldera-security-tests
-./bin/"cst-$(uname)" -p ../caldera TestEnv -d
+./bin/"cst-$(uname)" TestEnv -d
 ```
-
-1. Create a new repo with this template
-2. Replace all instances of PROJECT_NAME,
-   BIN_NAME, l50, and caldera-security-tests found throughout the codebase
-3. Customize as needed

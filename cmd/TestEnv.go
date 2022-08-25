@@ -42,7 +42,8 @@ var (
 		Long: `Facilitate the creation or destruction
 	of a test environment using docker compose.`,
 		Run: func(cmd *cobra.Command, args []string) {
-			create, _ := cmd.Flags().GetBool("create")
+			createUno, _ := cmd.Flags().GetBool("uno")
+			createDos, _ := cmd.Flags().GetBool("dos")
 			destroy, _ := cmd.Flags().GetBool("destroy")
 			cwd := goutils.Gwd()
 
@@ -54,17 +55,21 @@ var (
 				os.Exit(1)
 			}
 
-			if create {
-				if err = CreateTestEnv(); err != nil {
-					log.WithError(err).Error("failed to create test environment")
+			if createUno {
+				if err = CreateTestEnvUno(); err != nil {
+					log.WithError(err).Error("failed to create second test environment")
 					os.Exit(1)
 				}
 			} else if destroy {
 				if err = DestroyTestEnv(); err != nil {
-					log.WithError(err).Error("failed to create test environment")
+					log.WithError(err).Error("failed to destroy test environment")
 					os.Exit(1)
 				}
-
+			} else if createDos {
+				if err = CreateTestEnvDos(); err != nil {
+					log.WithError(err).Error("failed to create second test environment")
+					os.Exit(1)
+				}
 			}
 
 			if err := goutils.Cd(cwd); err != nil {
@@ -80,19 +85,41 @@ var (
 func init() {
 	rootCmd.AddCommand(TestEnvCmd)
 	TestEnvCmd.Flags().BoolP(
-		"create", "c", false, "Create the test environment.")
+		"uno", "1", false, "Create the test environment for the first XSS.")
+	TestEnvCmd.Flags().BoolP(
+		"dos", "2", false, "Create the test environment for the second XSS.")
 	TestEnvCmd.Flags().BoolP(
 		"destroy", "d", false, "Destroy the test environment.")
 }
 
-// CreateTestEnv deploys an insecure version of Caldera using docker compose.
-func CreateTestEnv() error {
+// CreateTestEnvUno deploys an insecure version of Caldera using docker compose.
+func CreateTestEnvUno() error {
 	fmt.Println(color.YellowString(
 		"Deploying Caldera container via docker compose, please wait..."))
 
 	_, err = script.Exec("git checkout 9473dceefa4aee2ce43a88413c41247bda531ff7").Stdout()
 	if err != nil {
 		log.WithError(err).Error("failed to checkout older branch")
+		return err
+	}
+
+	_, err = script.Exec("docker compose up -d --force-recreate --build").Stdout()
+	if err != nil {
+		log.WithError(err).Error("failed to deploy Caldera with docker compose")
+		return err
+	}
+
+	return nil
+}
+
+// CreateTestEnvDos deploys an insecure version of Caldera using docker compose.
+func CreateTestEnvDos() error {
+	fmt.Println(color.YellowString(
+		"Deploying Caldera container via docker compose, please wait..."))
+
+	_, err = script.Exec("git checkout master").Stdout()
+	if err != nil {
+		log.WithError(err).Error("failed to checkout master branch")
 		return err
 	}
 

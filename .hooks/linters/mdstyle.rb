@@ -28,5 +28,8 @@ rule 'MD013', code_blocks: false
 # * Another major bullet
 exclude_rule 'MD004' # Unordered list style
 
+# Ordered lists are fine.
+exclude_rule 'MD029'
+
 # I find it necessary to use '<br/>' to force line breaks.
 exclude_rule 'MD033' # Inline HTML

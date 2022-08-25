@@ -1,8 +1,8 @@
 ---
 builds:
-  - id: "PROJECT_NAME"
+  - id: "caldera-security-tests"
 
-    binary: BIN_NAME
+    binary: "caldera-security-tests"
 
     goos:
       - linux
