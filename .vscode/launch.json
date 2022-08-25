@@ -10,7 +10,7 @@
       "request": "launch",
       "mode": "debug",
       "program": "${workspaceRoot}",
-      "args": ["-p", "../caldera", "StoredXSSDos"],
+      "args": ["--debug", "-p", "../caldera", "StoredXSSUno"],
     }
   ]
 }

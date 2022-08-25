@@ -124,8 +124,6 @@ cd caldera-security-tests
 ./bin/"cst-$(uname)" -p ../caldera TestEnv -d
 ```
 
-To get started, you will need to:
-
 1. Create a new repo with this template
 2. Replace all instances of PROJECT_NAME,
    BIN_NAME, l50, and caldera-security-tests found throughout the codebase

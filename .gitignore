@@ -9,3 +9,6 @@ coverage-all.out
 
 # Distribution directory for binaries
 dist/
+
+# Generated images
+images/*

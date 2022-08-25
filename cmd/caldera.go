@@ -30,6 +30,7 @@ import (
 	"strings"
 
 	"github.com/bitfield/script"
+	"github.com/chromedp/cdproto/network"
 	"github.com/chromedp/chromedp"
 	goutils "github.com/l50/goutils"
 	log "github.com/sirupsen/logrus"
@@ -42,6 +43,7 @@ type Caldera struct {
 	Driver   ChromeDP
 	RepoPath string
 	URL      string
+	Payloads []string
 }
 
 // Credentials contains the credentials
@@ -91,7 +93,8 @@ func setupChrome(caldera Caldera) (ChromeDP, []func(), error) {
 
 // Login logs into Caldera using Google Chrome with the input
 // credentials and returns an authenticated session.
-func Login(caldera Caldera) error {
+func Login(caldera Caldera) (Caldera, error) {
+	// Selectors for chromeDP
 	userSelector := "body > div > div > form > div:nth-child(1) > div > input"
 	passSelector := "body > div > div > form > div:nth-child(2) > div > input"
 	loginSelector := "body > div > div > form > button"
@@ -107,10 +110,10 @@ func Login(caldera Caldera) error {
 
 	if err != nil {
 		log.WithError(err).Error("failed to login to Caldera")
-		return err
+		return caldera, err
 	}
 
-	return nil
+	return caldera, nil
 
 }
 
@@ -160,4 +163,27 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 	creds.User = strings.TrimSpace(outSlice[0])
 	creds.Pass = strings.TrimSpace(outSlice[1])
 	return creds, nil
+}
+
+func fullScreenshot(quality int, res *[]byte) chromedp.Tasks {
+	return chromedp.Tasks{
+		chromedp.FullScreenshot(res, quality),
+	}
+}
+
+func listenForNetworkEvent(ctx context.Context) {
+	chromedp.ListenTarget(ctx, func(ev interface{}) {
+		switch ev := ev.(type) {
+
+		case *network.EventResponseReceived:
+			resp := ev.Response
+			if len(resp.Headers) != 0 {
+				log.WithFields(log.Fields{
+					"Response Headers": resp.Headers,
+					"Response Status":  resp.Status,
+					"Response Body":    resp.StatusText,
+				}).Debug("HTTP Response Information")
+			}
+		}
+	})
 }

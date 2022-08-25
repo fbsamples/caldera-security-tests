@@ -24,75 +24,35 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 
-	"github.com/fatih/color"
-	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-// StoredXSSDosCmd runs the XSS vulnerability found after DEF CON 30.
+// StoredXSSUnoCmd represents the StoredXSSUno command
 var StoredXSSDosCmd = &cobra.Command{
-	Use:   "StoredXSSDos",
-	Short: "Stored XSS found in addition to the previously reported one",
+	Use:   "StoredXSSUno",
+	Short: "A brief description of your command",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(color.YellowString(
-			"Introducing stored XSS vulnerability, please wait..."))
-
-		caldera.URL = viper.GetString("login_url")
-
-		caldera.Creds, err = GetRedCreds(caldera.RepoPath)
-		if err != nil {
-			log.WithError(err).Errorf(
-				"failed to get Caldera credentials: %v", err)
-			os.Exit(1)
-		}
-
-		caldera.Driver.Headless = viper.GetBool("headless")
-		driver, cancels, err := setupChrome(caldera)
-		if err != nil {
-			log.WithError(err).Error("failed to setup Chrome")
-			os.Exit(1)
-		}
-
-		defer cancelAll(cancels)
-
-		caldera.Driver = driver
-
-		if err = Login(caldera); err != nil {
-			log.WithError(err).Error("failed to login to caldera")
-			os.Exit(1)
-		}
-
-		// options := append(chromedp.DefaultExecAllocatorOptions[:],
-		// 	// Don't run chrome in headless mode
-		// 	chromedp.Flag("headless", false),
-		// )
-
-		// // Create allocator context
-		// allocatorCtx, cancel := chromedp.NewExecAllocator(
-		// 	context.Background(), options...)
-		// defer cancel()
-
-		// // Create context
-		// ctx, cancel := chromedp.NewContext(allocatorCtx)
-		// defer cancel()
-
 		fmt.Println("StoredXSSDos called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(StoredXSSDosCmd)
+	rootCmd.AddCommand(StoredXSSUnoCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// StoredXSSDosCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// StoredXSSUnoCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// StoredXSSDosCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// StoredXSSUnoCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

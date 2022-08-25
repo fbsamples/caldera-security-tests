@@ -6,3 +6,7 @@ log:
   format: text
   level: info
 login_url: "http://localhost:8888/login"
+source_url: "http://localhost:8888/"
+payloads:
+  - "\"><img src=x onerror=prompt(document.domain)>"
+image_path: ./images/StoredXSS
