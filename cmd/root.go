@@ -53,7 +53,7 @@ var (
 	caldera Caldera
 
 	logToFile bool
-	logFile   *os.File
+	logFile   os.File
 
 	// rootCmd represents the base command when called without any subcommands
 	rootCmd = &cobra.Command{

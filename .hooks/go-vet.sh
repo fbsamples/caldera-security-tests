@@ -4,6 +4,7 @@ set -ex
 pkg=$(go list ./...)
 for dir in */; do
     if [[ "${dir}" != ".mage" ]] \
+                              && [[ "${dir}" != ".hooks/" ]] \
                               && [[ "${dir}" != "config/" ]] \
                               && [[ "${dir}" != "cmd/" ]] \
                               && [[ "${dir}" != "bin/" ]] \

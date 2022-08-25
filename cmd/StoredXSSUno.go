@@ -104,12 +104,7 @@ func storedXSSUnoVuln(payload string) error {
 
 	// handle payloads that use alerts, prompts, etc.
 	chromedp.ListenTarget(caldera.Driver.Context, func(ev interface{}) {
-		if ev, ok := ev.(*page.EventJavascriptDialogOpening); ok {
-			log.WithFields(log.Fields{
-				"Prompt output": ev.Message,
-				"Payload":       payload,
-			}).Info(color.GreenString("Successfully executed payload!!\n" +
-				"Closing the prompt and taking a screenshot of the aftermath"))
+		if _, ok := ev.(*page.EventJavascriptDialogOpening); ok {
 			go func() {
 				if err := chromedp.Run(caldera.Driver.Context,
 					page.HandleJavaScriptDialog(true),
@@ -170,6 +165,10 @@ func storedXSSUnoVuln(payload string) error {
 		}).Error("failed to introduce the vulnerability")
 		return err
 	}
+
+	log.WithFields(log.Fields{
+		"Payload": payload,
+	}).Info(color.GreenString("Successfully introduced payload"))
 
 	if err := os.WriteFile(imagePath+"1.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")

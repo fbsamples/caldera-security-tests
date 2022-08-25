@@ -1,19 +1,59 @@
-# Go Project Template
+# Caldera Security Tests
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/l50/caldera-security-tests)](https://goreportcard.com/report/github.com/l50/goproject)
 [![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/l50/caldera-security-tests/blob/master/LICENSE)
-[![Tests](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/tests.yaml)
-[![🚨 CodeQL Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/codeql-analysis.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/codeql-analysis.yaml)
-[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/goproject/actions/workflows/semgrep.yaml)
+[![Tests](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml)
+[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)/g(https://github.com/l50/caldera-security-tools/actions/workflows/semgrep.yaml)
 
-This repo provides a base template for a new go project.
+Execute two Stored XSS vulnerabilities that were found in MITRE attack by
+[Jayson Grace](https://techvomit.net) from the Meta Purple Team.
 
-It is highly opinionated and may not work for your usecase.
-I write a lot of cobra apps and employ magefiles in place of makefiles,
-so this template will be very focused around supporting projects of
-that nature.
+## Table of Contents
 
-## Dependencies
+- [Findings](docs/REPORT.md)
+- [Usage](#usage)
+- [Development](#development)
+  - [Dependencies](#dependencies)
+  - [Developer Environment Setup](#developer-environment-setup)
+
+---
+
+## Usage
+
+Create test environment:
+
+```bash
+git clone https://github.com/mitre/caldera.git
+git clone https://github.com/l50/caldera-security-tests
+cd caldera-security-tests
+# Environment for the first XSS
+./bin/"cst-$(uname)" TestEnv --uno
+# Environment for the second XSS
+./bin/"cst-$(uname)" TestEnv --dos
+```
+
+Create test environment, run the first XSS,
+and tear the test environment down:
+
+```bash
+./bin/cst-darwin TestEnv -1
+./bin/"cst-$(uname)" StoredXSSUno
+./bin/"cst-$(uname)" TestEnv -d
+```
+
+Create test environment, run the second XSS,
+and tear the test environment down:
+
+```bash
+./bin/cst-darwin TestEnv -2
+./bin/"cst-$(uname)" StoredXSSDos
+./bin/"cst-$(uname)" TestEnv -d
+```
+
+---
+
+## Hacking on the Project
+
+### Dependencies
 
 - [Install homebrew](https://brew.sh/):
 
@@ -59,9 +99,7 @@ that nature.
   go install github.com/magefile/mage@latest
   ```
 
----
-
-## Developer Environment Setup
+### Developer Environment Setup
 
 0. [Fork this project](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
 
@@ -107,37 +145,3 @@ that nature.
    ```bash
    ./magefile compile $uname
    ```
-
----
-
-## Usage
-
-Create test environment:
-
-```bash
-git clone https://github.com/mitre/caldera.git
-git clone https://github.com/l50/caldera-security-tests
-cd caldera-security-tests
-# Environment for the first XSS
-./bin/"cst-$(uname)" TestEnv --uno
-# Environment for the second XSS
-./bin/"cst-$(uname)" TestEnv --dos
-```
-
-Run the first XSS:
-
-```bash
-./bin/"cst-$(uname)" StoredXSSUno
-```
-
-Run the second XSS:
-
-```bash
-./bin/"cst-$(uname)" StoredXSSDos
-```
-
-Destroy test environment:
-
-```bash
-./bin/"cst-$(uname)" TestEnv -d
-```

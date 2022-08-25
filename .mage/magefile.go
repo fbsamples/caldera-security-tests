@@ -122,10 +122,10 @@ func RunPreCommit() error {
 		return err
 	}
 
-	// fmt.Println(color.YellowString("Running all pre-commit hooks locally."))
-	// if err := goutils.RunPCHooks(); err != nil {
-	// 	return err
-	// }
+	fmt.Println(color.YellowString("Running all pre-commit hooks locally."))
+	if err := goutils.RunPCHooks(); err != nil {
+		return err
+	}
 
 	return nil
 }
