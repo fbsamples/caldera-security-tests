@@ -41,7 +41,6 @@ import (
 const (
 	defaultConfigName = "config"
 	defaultConfigType = "yaml"
-	// defaultLogFile    = "caldera-security-tests.log"
 )
 
 var (
@@ -92,22 +91,6 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(
 		&logToFile, "enableLog", "l",
 		true, "Enable logging.")
-
-	rootCmd.PersistentFlags().StringVarP(
-		&caldera.RepoPath,
-		"repoPath", "p", "",
-		"Path to the caldera repo on the system")
-	if err := rootCmd.MarkPersistentFlagRequired("repoPath"); err != nil {
-		if err != nil {
-			log.WithError(err).Error("failed to mark persistent flag")
-		}
-
-	}
-
-	err = viper.BindPFlag("log_file", rootCmd.PersistentFlags().Lookup("repoPath"))
-	if err != nil {
-		log.WithError(err).Error("failed to retrieve log_file value from config.yaml")
-	}
 
 	err = viper.BindPFlag("debug", rootCmd.PersistentFlags().Lookup("debug"))
 	if err != nil {

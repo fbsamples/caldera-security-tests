@@ -41,12 +41,13 @@ import (
 // StoredXSSUnoCmd runs the XSS vulnerability found before DEF CON 30.
 var StoredXSSUnoCmd = &cobra.Command{
 	Use:   "StoredXSSUno",
-	Short: "Stored XSS found in addition to the previously reported one",
+	Short: "Stored XSS found during DEF CON 30.",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(color.YellowString(
 			"Introducing stored XSS vulnerability, please wait..."))
 
 		caldera.URL = viper.GetString("login_url")
+		caldera.RepoPath = viper.GetString("repo_path")
 		caldera.Creds, err = GetRedCreds(caldera.RepoPath)
 		if err != nil {
 			log.WithError(err).Errorf(

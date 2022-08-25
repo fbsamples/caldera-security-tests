@@ -31,6 +31,7 @@ import (
 	goutils "github.com/l50/goutils"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -45,6 +46,7 @@ var (
 			destroy, _ := cmd.Flags().GetBool("destroy")
 			cwd := goutils.Gwd()
 
+			caldera.RepoPath = viper.GetString("repo_path")
 			if err := goutils.Cd(caldera.RepoPath); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Repo Path": caldera.RepoPath,

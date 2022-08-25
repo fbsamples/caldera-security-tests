@@ -131,11 +131,12 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 	}
 
 	rescueStdout := os.Stdout
+	rescueStderr := os.Stderr
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
 	re := regexp.MustCompile("red: [a-z][A-Z]*")
-	_, err := script.Exec("docker compose exec caldera cat conf/local.yml").MatchRegexp(re).Stdout()
+	_, err = script.Exec("docker-compose exec caldera cat conf/local.yml").MatchRegexp(re).Stdout()
 	if err != nil {
 		log.WithError(err).Error("failed to get credentials")
 		return creds, err
@@ -150,6 +151,7 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 		return creds, err
 	}
 	os.Stdout = rescueStdout
+	os.Stderr = rescueStderr
 
 	outSlice := strings.Split(string(out), ":")
 
@@ -163,12 +165,6 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 	creds.User = strings.TrimSpace(outSlice[0])
 	creds.Pass = strings.TrimSpace(outSlice[1])
 	return creds, nil
-}
-
-func fullScreenshot(quality int, res *[]byte) chromedp.Tasks {
-	return chromedp.Tasks{
-		chromedp.FullScreenshot(res, quality),
-	}
 }
 
 func listenForNetworkEvent(ctx context.Context) {

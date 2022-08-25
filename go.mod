@@ -4,6 +4,7 @@ go 1.18
 
 require (
 	github.com/bitfield/script v0.20.2
+	github.com/chromedp/cdproto v0.0.0-20220812200530-d0d83820bffc
 	github.com/chromedp/chromedp v0.8.4
 	github.com/fatih/color v1.13.0
 	github.com/l50/goutils v1.1.1
@@ -17,7 +18,6 @@ require (
 	github.com/Microsoft/go-winio v0.4.16 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20210428141323-04723f9f07d7 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
-	github.com/chromedp/cdproto v0.0.0-20220812200530-d0d83820bffc // indirect
 	github.com/chromedp/sysutil v1.0.0 // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/fsnotify/fsnotify v1.5.4 // indirect
