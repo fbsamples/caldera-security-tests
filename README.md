@@ -1,7 +1,7 @@
 # Caldera Security Tests
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/l50/caldera-security-tests/blob/main/LICENSE)
-[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/caldera-security-tools/actions/workflows/semgrep.yaml)
+[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml)
 [![goreleaser](https://github.com/l50/caldera-security-tests/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/l50/caldera-security-tests/actions/workflows/goreleaser.yml)
 
 Execute two Stored XSS vulnerabilities that were found in
