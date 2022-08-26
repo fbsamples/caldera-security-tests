@@ -48,6 +48,11 @@ and tear the test environment down:
 ./bin/"cst-$(uname)" TestEnv -d
 ```
 
+Parameters for the tests can be modified
+in the generated `/config/config.yaml` file.
+This file is created as soon as the `TestEnv`
+command in the above example is run.
+
 ---
 
 ## Hacking on the Project
