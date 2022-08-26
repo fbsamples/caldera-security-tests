@@ -26,13 +26,11 @@ Create test environment:
 git clone https://github.com/mitre/caldera.git
 git clone https://github.com/l50/caldera-security-tests
 cd caldera-security-tests
-# Environment for the first XSS
-./bin/"cst-$(uname)" TestEnv --uno
-# Environment for the second XSS
-./bin/"cst-$(uname)" TestEnv --dos
+# Download the release binary and drop it in ./bin/
+# from the root of the repo.
 ```
 
-Create test environment, run the first XSS,
+Create first test environment, run the first XSS,
 and tear the test environment down:
 
 ```bash
@@ -41,7 +39,7 @@ and tear the test environment down:
 ./bin/"cst-$(uname)" TestEnv -d
 ```
 
-Create test environment, run the second XSS,
+Create second test environment, run the second XSS,
 and tear the test environment down:
 
 ```bash
