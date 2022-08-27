@@ -1,6 +1,6 @@
 ---
 debug: false
-headless: false
+headless: true
 log_file: true
 log:
   format: text

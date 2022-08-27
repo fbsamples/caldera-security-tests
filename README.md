@@ -35,8 +35,9 @@ and tear the test environment down:
 
 ```bash
 ./bin/cst-darwin TestEnv -1
-./bin/"cst-$(uname)" StoredXSSUno
-./bin/"cst-$(uname)" TestEnv -d
+export OS="$(uname | python3 -c "print(open(0).read().lower().strip())")"
+./bin/"cst-${OS}" StoredXSSUno
+./bin/"cst-${OS}" TestEnv -d
 ```
 
 Create second test environment, run the second XSS,
@@ -147,5 +148,6 @@ command in the above example is run.
 6. Compile binary:
 
    ```bash
-   ./magefile compile $uname
+   export OS="$(uname | python3 -c "print(open(0).read().lower().strip())")"
+   ./magefile compile ${OS}
    ```
