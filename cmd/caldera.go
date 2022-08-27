@@ -25,7 +25,6 @@ package cmd
 import (
 	"context"
 	"os"
-	"regexp"
 	"strings"
 
 	"github.com/chromedp/cdproto/network"
@@ -125,6 +124,8 @@ func Login(caldera Caldera) (Caldera, error) {
 func GetRedCreds(calderaPath string) (Credentials, error) {
 	creds := Credentials{}
 	cwd := goutils.Gwd()
+	found := false
+	outStr := ""
 
 	if err := os.Chdir(calderaPath); err != nil {
 		log.WithFields(log.Fields{
@@ -133,7 +134,6 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 		return creds, err
 	}
 
-	re := regexp.MustCompile("red: [a-z][A-Z]*")
 	output, err := sh.Output("docker",
 		"compose",
 		"exec",
@@ -149,14 +149,19 @@ func GetRedCreds(calderaPath string) (Credentials, error) {
 		return creds, err
 	}
 
-	outSlice := strings.Split(output, "  ")
+	outSlice := goutils.StringToSlice(output, " ")
 	for _, out := range outSlice {
-		if re.Match([]byte(out)) {
-			cSlice := strings.Split(out, ":")
-			creds.User = strings.TrimSpace(cSlice[0])
-			creds.Pass = strings.TrimSpace(cSlice[1])
+		if found {
+			outStr += out
+		}
+		if out == "red:" {
+			found = true
+			outStr = out
 		}
 	}
+	cSlice := strings.Split(outStr, ":")
+	creds.User = strings.TrimSpace(cSlice[0])
+	creds.Pass = strings.TrimSpace(cSlice[1])
 
 	if err := os.Chdir(cwd); err != nil {
 		log.WithFields(log.Fields{

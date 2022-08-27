@@ -7,7 +7,7 @@ require (
 	github.com/chromedp/cdproto v0.0.0-20220822010834-25fb11339333
 	github.com/chromedp/chromedp v0.8.4
 	github.com/fatih/color v1.13.0
-	github.com/l50/goutils v1.1.1
+	github.com/l50/goutils v1.1.2
 	github.com/magefile/mage v1.13.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.5.0
