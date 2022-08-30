@@ -23,11 +23,19 @@ and was reported to the team at that time.
 
 **Remediation:**
 
-Triaged by using JS breakpoints, DOMInvader, and manual investigation. Confirmed the xss exploit by using different xss techniques that took advantage of broken IMG tags.
+Triaged by using JS breakpoints, DOMInvader, and manual investigation.
+Confirmed the xss exploit by using different
+xss techniques that took advantage of broken IMG tags.
 
-Findings pointed toward unsanitized input being evaluated in the operation name portion of the toast() function. This function was derived from the bulma-toast JavaScript extension and helps create the dialog box notifying the user when an operation was started. 
+Findings pointed toward unsanitized input being evaluated in the operation name
+portion of the toast() function. This function was derived from the bulma-toast
+JavaScript extension and helps create the dialog box notifying the user when
+an operation was started.
 
-The finding was patched by creating a sanitize() function which takes a string input, creates a DOMParser instance so that we can convert the string to HTML , then extracting its inner text. Effectively, this strips all HTML from the input string.
+The finding was patched by creating a sanitize() function which takes a string input,
+creates a DOMParser instance so that we can convert the string to HTML,
+then extracting its inner text.
+Effectively, this strips all HTML from the input string.
 
 **State:** [Remediated](https://github.com/mitre/caldera/pull/2644)
 
@@ -60,8 +68,12 @@ The finding was patched by creating a sanitize() function which takes a string i
 
 **Remediation:**
 
-The Debrief plugin contained a similar unsafe message input inside the graph.js script. In this case, a stored xss message could be referenced by a ToolTip function that displays information about the operation. Similar to the Operation bug, a malformed IMG tag in the name field allowed for xss. 
+The Debrief plugin contained a similar unsafe message input inside the graph.js script.
+In this case, a stored xss message could be referenced by a
+ToolTip function that displays information about the operation.
+Similar to the Operation bug, a malformed IMG tag in the name field allowed for xss.
 
-The finding was patched by passing the name field through the sanitize() function created in the first remediation effort.
+The finding was patched by passing the name field through the sanitize()
+function created in the first remediation effort.
 
 **State:** [Remediated](https://github.com/mitre/debrief/pull/61)
