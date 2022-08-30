@@ -4,8 +4,8 @@ go 1.18
 
 require (
 	github.com/bitfield/script v0.20.2
-	github.com/chromedp/cdproto v0.0.0-20220822010834-25fb11339333
-	github.com/chromedp/chromedp v0.8.4
+	github.com/chromedp/cdproto v0.0.0-20220827030233-358ed4af73cf
+	github.com/chromedp/chromedp v0.8.5
 	github.com/fatih/color v1.13.0
 	github.com/l50/goutils v1.1.2
 	github.com/magefile/mage v1.13.0
@@ -55,7 +55,7 @@ require (
 	github.com/xanzy/ssh-agent v0.3.2 // indirect
 	golang.org/x/crypto v0.0.0-20220824171710-5757bc0c5503 // indirect
 	golang.org/x/net v0.0.0-20220822230855-b0a4917ee28c // indirect
-	golang.org/x/sys v0.0.0-20220823224334-20c2bfdbfe24 // indirect
+	golang.org/x/sys v0.0.0-20220825204002-c680a09ffe64 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
