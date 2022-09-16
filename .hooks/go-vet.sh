@@ -9,10 +9,9 @@ for dir in */; do
                               && [[ "${dir}" != "cmd/" ]] \
                               && [[ "${dir}" != "bin/" ]] \
                               && [[ "${dir}" != "images/" ]] \
-                           && [[ "${dir}" != "resources/" ]] \
-                                 && [[ "${dir}" != "docs/" ]] \
-                            && [[ "${dir}" != "files/" ]] \
-                             && [[ "${dir}" != "logs/" ]]; then
+                              && [[ "${dir}" != "resources/" ]] \
+                              && [[ "${dir}" != "files/" ]] \
+                              && [[ "${dir}" != "logs/" ]]; then
         go vet "${pkg}/${dir}"
     fi
 done

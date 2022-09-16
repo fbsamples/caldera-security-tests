@@ -11,7 +11,6 @@ from the Meta Purple Team.
 
 ## Table of Contents
 
-- [Report of Findings](docs/REPORT.md)
 - [Usage](#usage)
 - [Development](#development)
   - [Dependencies](#dependencies)
@@ -131,13 +130,15 @@ command in the above example is run.
 3. Generate the `magefile` binary:
 
    ```bash
-   mage -d .mage/ -compile ../magefile
+   mage -d .mage/ installDeps
+   mage -d -compile ../magefile
    ```
 
 4. Install pre-commit hooks and dependencies:
 
    ```bash
-   ./magefile installPreCommitHooks
+   mage -d .mage/ installDeps
+   mage -d .mage/ installPreCommitHooks
    ```
 
 5. Update and run pre-commit hooks locally:
