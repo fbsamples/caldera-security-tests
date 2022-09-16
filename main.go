@@ -21,7 +21,7 @@ THE SOFTWARE.
 */
 package main
 
-import "github.com/l50/caldera-security-tests/cmd"
+import "github.com/fbsamples/caldera-security-tests/cmd"
 
 func main() {
 	cmd.Execute()
