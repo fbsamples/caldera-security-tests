@@ -1,5 +1,5 @@
 ---
-name: Tests
+name: Run Tests
 on:
   pull_request:
   push:
@@ -10,7 +10,7 @@ on:
     - cron: "0 0 * * 0"
 jobs:
   tests:
-    name: Run tests and pre-commit hooks
+    name: Run security regression tests
     runs-on: ubuntu-latest
     steps:
       - name: Set up git repository
@@ -47,9 +47,6 @@ jobs:
       - name: Install pre-commit hooks
         run: ./magefile installDeps
 
-      - name: Run pre-commit
-        uses: pre-commit/action@v3.0.0
-
       - name: Compile binary
         run: ./magefile compile linux
 
@@ -80,7 +77,7 @@ jobs:
       - name: Report failure
         uses: nashmaniac/create-issue-action@v1.1
         # Only report failures of pushes
-        # (PRs have are visible through the Checks
+        # (PRs failures are visible through the Checks
         # section) to the default branch
         if: failure() && github.event_name == 'push' && github.ref == 'refs/heads/main'
         with:
