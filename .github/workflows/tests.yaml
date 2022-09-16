@@ -41,7 +41,7 @@ jobs:
       - name: Clone caldera repo
         run: |
           pushd ..
-          git clone https://github.com/l50/caldera.git --recursive
+          git clone https://github.com/fbsamples/caldera.git --recursive
           popd
 
       - name: Install pre-commit hooks

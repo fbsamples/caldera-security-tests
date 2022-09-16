@@ -1,9 +1,9 @@
 # Caldera Security Tests
 
-[![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/l50/caldera-security-tests/blob/main/LICENSE)
-[![🚨 Semgrep Analysis](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/l50/caldera-security-tests/actions/workflows/semgrep.yaml)
-[![goreleaser](https://github.com/l50/caldera-security-tests/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/l50/caldera-security-tests/actions/workflows/goreleaser.yml)
-[![Tests](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/l50/caldera-security-tests/actions/workflows/tests.yaml)
+[![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/fbsamples/caldera-security-tests/blob/main/LICENSE)
+[![🚨 Semgrep Analysis](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml)
+[![goreleaser](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml)
+[![Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml)
 
 Execute two Stored XSS vulnerabilities that were found in
 [MITRE Caldera](https://github.com/mitre/caldera) by [Jayson Grace](https://techvomit.net)
@@ -25,7 +25,7 @@ Create test environment:
 
 ```bash
 git clone https://github.com/mitre/caldera.git
-git clone https://github.com/l50/caldera-security-tests
+git clone https://github.com/fbsamples/caldera-security-tests
 cd caldera-security-tests
 # Download the release binary and drop it in ./bin/
 # from the root of the repo.
@@ -112,7 +112,7 @@ command in the above example is run.
 1. Clone your forked repo and caldera:
 
    ```bash
-   git clone https://github.com/l50/caldera-security-tests.git
+   git clone https://github.com/fbsamples/caldera-security-tests.git
    git clone https://github.com/mitre/caldera.git
    ```
 

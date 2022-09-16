@@ -1,4 +1,4 @@
-module github.com/l50/caldera-security-tests
+module github.com/fbsamples/caldera-security-tests
 
 go 1.18
 
