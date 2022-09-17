@@ -27,11 +27,10 @@ engagements, pentests, etc.
 
 ## Table of Contents
 
-- [CALDERA Security Regression Pipeline PoC](#caldera-security-regression-pipeline-poc)
-  - [Usage](#usage)
-  - [Hacking on the Project](#hacking-on-the-project)
-    - [Dependencies](#dependencies)
-    - [Developer Environment Setup](#developer-environment-setup)
+- [Usage](#usage)
+- [Hacking on the Project](#hacking-on-the-project)
+  - [Dependencies](#dependencies)
+  - [Developer Environment Setup](#developer-environment-setup)
 
 ---
 
