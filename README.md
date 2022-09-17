@@ -1,12 +1,13 @@
-# CALDERA Security Regression Pipeline
+# CALDERA Security Regression Pipeline PoC
 
 [![License](https://img.shields.io/github/license/l50/goutils?label=license&style=flat&color=blue&logo=github)](https://github.com/fbsamples/caldera-security-tests/blob/main/LICENSE)
 [![🚨 Semgrep Analysis](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml)
 [![goreleaser](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml)
 [![Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml)
 
-This project was created to provide examples of security regression tests for
-vulnerabilities that were discovered in [MITRE CALDERA](https://github.com/mitre/caldera)
+This project was created to provide a proof of concept example of a security regression
+pipeline for vulnerabilities that were discovered
+in [MITRE CALDERA](https://github.com/mitre/caldera)
 by [Jayson Grace](https://techvomit.net) from Meta's Purple Team.
 
 The attacks are run against a fresh test environment with the latest
@@ -18,14 +19,15 @@ vulnerabilities, the attacks are expected to fail.
 If any of the vulnerabilities are successful during one of these runs,
 an issue is automatically created noting the regression.
 
-Ideally this should be run as part of a CI/CD pipeline, but it can also work
-as a standalone entity for Purple Team engagements, pentests, etc.
+Ideally this should be run as part of a CI/CD pipeline gating commits,
+but it can also work as a standalone entity for Purple Team
+engagements, pentests, etc.
 
 ---
 
 ## Table of Contents
 
-- [CALDERA Security Regression Pipeline](#caldera-security-regression-pipeline)
+- [CALDERA Security Regression Pipeline PoC](#caldera-security-regression-pipeline-poc)
   - [Usage](#usage)
   - [Hacking on the Project](#hacking-on-the-project)
     - [Dependencies](#dependencies)
