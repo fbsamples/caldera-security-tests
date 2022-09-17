@@ -12,7 +12,7 @@ from the Meta Purple Team.
 ## Table of Contents
 
 - [Usage](#usage)
-- [Development](#development)
+- [Hacking on the Project](#hacking-on-the-project)
   - [Dependencies](#dependencies)
   - [Developer Environment Setup](#developer-environment-setup)
 
