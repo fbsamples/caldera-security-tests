@@ -42,7 +42,7 @@ type Caldera struct {
 	HomeURL  string
 	RepoPath string
 	URL      string
-	Payloads []string
+	Payload  string
 }
 
 // Credentials contains the credentials

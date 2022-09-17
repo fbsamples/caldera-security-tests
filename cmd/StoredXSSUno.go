@@ -38,51 +38,53 @@ import (
 	"github.com/spf13/viper"
 )
 
-// StoredXSSUnoCmd runs the XSS vulnerability found before DEF CON 30.
-var StoredXSSUnoCmd = &cobra.Command{
-	Use:   "StoredXSSUno",
-	Short: "Stored XSS found during DEF CON 30.",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(color.YellowString(
-			"Introducing stored XSS vulnerability #1, please wait..."))
+var (
+	// StoredXSSUnoCmd runs the XSS vulnerability found before DEF CON 30.
+	StoredXSSUnoCmd = &cobra.Command{
+		Use:   "StoredXSSUno",
+		Short: "Stored XSS found during DEF CON 30.",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(color.YellowString(
+				"Introducing stored XSS vulnerability #1, please wait..."))
 
-		caldera.URL = viper.GetString("login_url")
-		caldera.RepoPath = viper.GetString("repo_path")
-		caldera.Creds, err = GetRedCreds(caldera.RepoPath)
-		if err != nil {
-			log.WithError(err).Errorf(
-				"failed to get Caldera credentials: %v", err)
-			os.Exit(1)
-		}
-
-		caldera.Driver.Headless = viper.GetBool("headless")
-		driver, cancels, err := setupChrome(caldera)
-		if err != nil {
-			log.WithError(err).Error("failed to setup Chrome")
-			os.Exit(1)
-		}
-
-		defer cancelAll(cancels)
-
-		caldera.Driver = driver
-
-		caldera, err = Login(caldera)
-		if err != nil {
-			log.WithError(err).Error("failed to login to caldera")
-			os.Exit(1)
-		}
-
-		caldera.Payloads = viper.GetStringSlice("payloads")
-
-		for _, payload := range caldera.Payloads {
-			if err = storedXSSUnoVuln(payload); err != nil {
-				log.WithError(err).WithFields(log.Fields{
-					"Payload": payload,
-				}).Error("failed to introduce the vulnerability")
+			caldera.URL = viper.GetString("login_url")
+			caldera.RepoPath = viper.GetString("repo_path")
+			caldera.Creds, err = GetRedCreds(caldera.RepoPath)
+			if err != nil {
+				log.WithError(err).Errorf(
+					"failed to get Caldera credentials: %v", err)
+				os.Exit(1)
 			}
-		}
-	},
-}
+
+			caldera.Driver.Headless = viper.GetBool("headless")
+			driver, cancels, err := setupChrome(caldera)
+			if err != nil {
+				log.WithError(err).Error("failed to setup Chrome")
+				os.Exit(1)
+			}
+
+			defer cancelAll(cancels)
+
+			caldera.Driver = driver
+
+			caldera, err = Login(caldera)
+			if err != nil {
+				log.WithError(err).Error("failed to login to caldera")
+				os.Exit(1)
+			}
+
+			caldera.Payload = viper.GetString("payload")
+
+			if err = storedXSSUnoVuln(caldera.Payload); err != nil {
+				log.WithError(err).WithFields(log.Fields{
+					"Payload": caldera.Payload,
+				}).Error("failed to introduce the exploit")
+			}
+		},
+	}
+
+	storedXSSUnoSuccess = false
+)
 
 func init() {
 	rootCmd.AddCommand(StoredXSSUnoCmd)
@@ -102,13 +104,17 @@ func storedXSSUnoVuln(payload string) error {
 	// listen network event
 	listenForNetworkEvent(caldera.Driver.Context)
 
-	// handle payloads that use alerts, prompts, etc.
+	// handle payload that use alerts, prompts, etc.
 	chromedp.ListenTarget(caldera.Driver.Context, func(ev interface{}) {
 		if _, ok := ev.(*page.EventJavascriptDialogOpening); ok {
 			go func() {
-				if err := chromedp.Run(caldera.Driver.Context,
-					page.HandleJavaScriptDialog(true),
-				); err != nil {
+				err := chromedp.Run(caldera.Driver.Context,
+					page.HandleJavaScriptDialog(true))
+
+				// If we have gotten here, the exploit succeeded.
+				storedXSSDosSuccess = true
+
+				if err != nil {
 					panic(err)
 				}
 			}()
@@ -162,19 +168,23 @@ func storedXSSUnoVuln(payload string) error {
 		})); err != nil {
 		log.WithError(err).WithFields(log.Fields{
 			"Payload": payload,
-		}).Error("failed to introduce the vulnerability")
+		}).Error("unexpected error while introducing the exploit")
 		return err
 	}
-
-	log.WithFields(log.Fields{
-		"Payload": payload,
-	}).Info(color.GreenString("Successfully introduced payload"))
 
 	if err := os.WriteFile(imagePath+"1.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")
-		return err
+	}
+
+	if storedXSSUnoSuccess {
+		log.WithFields(log.Fields{
+			"Payload": payload,
+		}).Error(color.RedString("failure: Stored XSS Uno ran successfully"))
+	} else {
+		log.WithFields(log.Fields{
+			"Payload": payload,
+		}).Info(color.GreenString("Success: Stored XSS Uno failed to run"))
 	}
 
 	return nil
-
 }

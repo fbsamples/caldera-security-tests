@@ -50,8 +50,8 @@ jobs:
       - name: Compile binary
         run: ./magefile compile linux
 
-      - name: Create test environment
-        run: ./bin/cst-linux TestEnv -1
+      - name: Create vulnerable test environment
+        run: ./bin/cst-linux TestEnv -v
 
       - name: Sleep for 20 seconds
         run: sleep 20s

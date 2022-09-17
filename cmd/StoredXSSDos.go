@@ -42,51 +42,53 @@ import (
 	"github.com/spf13/viper"
 )
 
-// StoredXSSDosCmd runs the XSS vulnerability found after DEF CON 30.
-var StoredXSSDosCmd = &cobra.Command{
-	Use:   "StoredXSSDos",
-	Short: "Stored XSS found in addition to the previously reported one",
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(color.YellowString(
-			"Introducing stored XSS vulnerability #2, please wait..."))
+var (
+	// StoredXSSDosCmd runs the XSS vulnerability found after DEF CON 30.
+	StoredXSSDosCmd = &cobra.Command{
+		Use:   "StoredXSSDos",
+		Short: "Stored XSS found in addition to the previously reported one",
+		Run: func(cmd *cobra.Command, args []string) {
+			fmt.Println(color.YellowString(
+				"Introducing stored XSS vulnerability #2, please wait..."))
 
-		caldera.URL = viper.GetString("login_url")
-		caldera.RepoPath = viper.GetString("repo_path")
-		caldera.Creds, err = GetRedCreds(caldera.RepoPath)
-		if err != nil {
-			log.WithError(err).Errorf(
-				"failed to get Caldera credentials: %v", err)
-			os.Exit(1)
-		}
-
-		caldera.Driver.Headless = viper.GetBool("headless")
-		driver, cancels, err := setupChrome(caldera)
-		if err != nil {
-			log.WithError(err).Error("failed to setup Chrome")
-			os.Exit(1)
-		}
-
-		defer cancelAll(cancels)
-
-		caldera.Driver = driver
-
-		caldera, err = Login(caldera)
-		if err != nil {
-			log.WithError(err).Error("failed to login to caldera")
-			os.Exit(1)
-		}
-
-		caldera.Payloads = viper.GetStringSlice("payloads")
-
-		for _, payload := range caldera.Payloads {
-			if err = storedXSSDosVuln(payload); err != nil {
-				log.WithError(err).WithFields(log.Fields{
-					"Payload": payload,
-				}).Error("failed to introduce the vulnerability")
+			caldera.URL = viper.GetString("login_url")
+			caldera.RepoPath = viper.GetString("repo_path")
+			caldera.Creds, err = GetRedCreds(caldera.RepoPath)
+			if err != nil {
+				log.WithError(err).Errorf(
+					"failed to get Caldera credentials: %v", err)
+				os.Exit(1)
 			}
-		}
-	},
-}
+
+			caldera.Driver.Headless = viper.GetBool("headless")
+			driver, cancels, err := setupChrome(caldera)
+			if err != nil {
+				log.WithError(err).Error("failed to setup Chrome")
+				os.Exit(1)
+			}
+
+			defer cancelAll(cancels)
+
+			caldera.Driver = driver
+
+			caldera, err = Login(caldera)
+			if err != nil {
+				log.WithError(err).Error("failed to login to caldera")
+				os.Exit(1)
+			}
+
+			caldera.Payload = viper.GetString("payload")
+
+			if err = storedXSSDosVuln(caldera.Payload); err != nil {
+				log.WithError(err).WithFields(log.Fields{
+					"Payload": caldera.Payload,
+				}).Error("failed to introduce the exploit")
+			}
+		},
+	}
+
+	storedXSSDosSuccess = false
+)
 
 func init() {
 	rootCmd.AddCommand(StoredXSSDosCmd)
@@ -171,13 +173,17 @@ func storedXSSDosVuln(payload string) error {
 	// listen network event
 	listenForNetworkEvent(caldera.Driver.Context)
 
-	// handle payloads that use alerts, prompts, etc.
+	// handle payload that use alerts, prompts, etc.
 	chromedp.ListenTarget(caldera.Driver.Context, func(ev interface{}) {
 		if _, ok := ev.(*page.EventJavascriptDialogOpening); ok {
 			go func() {
-				if err := chromedp.Run(caldera.Driver.Context,
-					page.HandleJavaScriptDialog(true),
-				); err != nil {
+				err := chromedp.Run(caldera.Driver.Context,
+					page.HandleJavaScriptDialog(true))
+
+				// If we have gotten here, the exploit succeeded.
+				storedXSSDosSuccess = true
+
+				if err != nil {
 					panic(err)
 				}
 			}()
@@ -233,17 +239,23 @@ func storedXSSDosVuln(payload string) error {
 		})); err != nil {
 		log.WithError(err).WithFields(log.Fields{
 			"Payload": payload,
-		}).Error("failed to introduce the vulnerability")
+		}).Error("unexpected error while introducing the exploit")
 		return err
 	}
-
-	log.WithFields(log.Fields{
-		"Payload": payload,
-	}).Info(color.GreenString("Successfully introduced payload"))
 
 	if err := os.WriteFile(imagePath+"2.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")
 		return err
+	}
+
+	if storedXSSDosSuccess {
+		log.WithFields(log.Fields{
+			"Payload": payload,
+		}).Error(color.RedString("failure: Stored XSS Dos ran successfully"))
+	} else {
+		log.WithFields(log.Fields{
+			"Payload": payload,
+		}).Info(color.GreenString("Success: Stored XSS Dos failed to run"))
 	}
 
 	return nil
