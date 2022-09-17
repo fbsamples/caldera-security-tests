@@ -1,5 +1,5 @@
 ---
-name: Run Tests
+name: Security Regression Pipeline
 on:
   pull_request:
   push:
