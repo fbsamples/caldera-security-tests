@@ -21,6 +21,8 @@ an issue is automatically created noting the regression.
 Ideally this should be run as part of a CI/CD pipeline, but it can also work
 as a standalone entity for Purple Team engagements, pentests, etc.
 
+---
+
 ## Table of Contents
 
 - [CALDERA Security Regression Pipeline](#caldera-security-regression-pipeline)
