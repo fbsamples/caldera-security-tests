@@ -44,6 +44,7 @@ var (
 		Run: func(cmd *cobra.Command, args []string) {
 			createUno, _ := cmd.Flags().GetBool("uno")
 			createDos, _ := cmd.Flags().GetBool("dos")
+			recent, _ := cmd.Flags().GetBool("recent")
 			destroy, _ := cmd.Flags().GetBool("destroy")
 			cwd := goutils.Gwd()
 
@@ -70,6 +71,11 @@ var (
 					log.WithError(err).Error("failed to create second test environment")
 					os.Exit(1)
 				}
+			} else if recent {
+				if err = CreateTestEnvRecent(); err != nil {
+					log.WithError(err).Error("failed to create recent test environment")
+					os.Exit(1)
+				}
 			}
 
 			if err := goutils.Cd(cwd); err != nil {
@@ -88,6 +94,9 @@ func init() {
 		"uno", "1", false, "Create the test environment for the first XSS.")
 	TestEnvCmd.Flags().BoolP(
 		"dos", "2", false, "Create the test environment for the second XSS.")
+	TestEnvCmd.Flags().BoolP(
+		"recent", "r", false, "Create test environment with the most"+
+			"recent commit to the CALDERA's default branch.")
 	TestEnvCmd.Flags().BoolP(
 		"destroy", "d", false, "Destroy the test environment.")
 }
@@ -132,10 +141,30 @@ func CreateTestEnvDos() error {
 	return nil
 }
 
-// DestroyTestEnv destroys a Caldera deployment created using docker compose
+// CreateTestEnvRecent deploys the most recent version of Caldera using docker compose.
+func CreateTestEnvRecent() error {
+	fmt.Println(color.YellowString(
+		"Deploying CALDERA container via docker compose, please wait..."))
+
+	_, err = script.Exec("git checkout master").Stdout()
+	if err != nil {
+		log.WithError(err).Error("failed to checkout master branch")
+		return err
+	}
+
+	_, err = script.Exec("docker compose up -d --force-recreate --build").Stdout()
+	if err != nil {
+		log.WithError(err).Error("failed to deploy CALDERA with docker compose")
+		return err
+	}
+
+	return nil
+}
+
+// DestroyTestEnv destroys a CALDERA deployment created using docker compose
 func DestroyTestEnv() error {
 	fmt.Println(color.YellowString(
-		"Destroying Caldera container via docker compose, please wait..."))
+		"Destroying CALDERA container via docker compose, please wait..."))
 	_, err := script.Exec("docker compose down -v").Stdout()
 	if err != nil {
 		return err

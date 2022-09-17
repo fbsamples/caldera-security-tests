@@ -1,5 +1,5 @@
 ---
-name: Baseline Tests
+name: Security Regression Pipeline
 on:
   pull_request:
   push:
@@ -10,7 +10,7 @@ on:
     - cron: "0 0 * * 0"
 jobs:
   tests:
-    name: Ensure exploits work as expected against known vulnerable deployment
+    name: Run security regression tests
     runs-on: ubuntu-latest
     steps:
       - name: Set up git repository
@@ -51,7 +51,7 @@ jobs:
         run: ./magefile compile linux
 
       - name: Create test environment
-        run: ./bin/cst-linux TestEnv -1
+        run: ./bin/cst-linux TestEnv -r
 
       - name: Sleep for 20 seconds
         run: sleep 20s

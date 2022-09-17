@@ -6,8 +6,8 @@
 [![Baseline Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml)
 [![Security Regression Pipeline](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml)
 
-This project was created to provide a proof of concept example of a security regression
-pipeline for vulnerabilities that were discovered
+This project was created to provide a proof of concept example of a
+Security Regression Pipeline for vulnerabilities that were discovered
 in [MITRE CALDERA](https://github.com/mitre/caldera)
 by [Jayson Grace](https://techvomit.net) from Meta's Purple Team.
 
@@ -62,6 +62,17 @@ and tear the test environment down:
 
 ```bash
 ./bin/cst-darwin TestEnv -2
+./bin/"cst-$(uname)" StoredXSSDos
+./bin/"cst-$(uname)" TestEnv -d
+```
+
+Create test environment with the most recent
+version of CALDERA, try running both attacks,
+and tear the test environment down:
+
+```bash
+./bin/cst-darwin TestEnv -r
+./bin/"cst-$(uname)" StoredXSSUno
 ./bin/"cst-$(uname)" StoredXSSDos
 ./bin/"cst-$(uname)" TestEnv -d
 ```

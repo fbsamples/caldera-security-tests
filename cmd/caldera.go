@@ -35,7 +35,7 @@ import (
 )
 
 // Caldera contains parameters associated
-// with MITRE Caldera.
+// with MITRE CALDERA.
 type Caldera struct {
 	Creds    Credentials
 	Driver   ChromeDP
@@ -46,7 +46,7 @@ type Caldera struct {
 }
 
 // Credentials contains the credentials
-// to access Caldera.
+// to access CALDERA.
 type Credentials struct {
 	User string
 	Pass string
@@ -90,7 +90,7 @@ func setupChrome(caldera Caldera) (ChromeDP, []func(), error) {
 	return chrome, cancels, nil
 }
 
-// Login logs into Caldera using Google Chrome with the input
+// Login logs into CALDERA using Google Chrome with the input
 // credentials and returns an authenticated session.
 func Login(caldera Caldera) (Caldera, error) {
 	// Selectors for chromeDP
@@ -111,7 +111,7 @@ func Login(caldera Caldera) (Caldera, error) {
 	)
 
 	if err != nil {
-		log.WithError(err).Error("failed to login to Caldera")
+		log.WithError(err).Error("failed to login to CALDERA")
 		return caldera, err
 	}
 
@@ -120,7 +120,7 @@ func Login(caldera Caldera) (Caldera, error) {
 }
 
 // GetRedCreds navigates to the input calderaPath to
-// retrieve the red user credentials for MITRE Caldera.
+// retrieve the red user credentials for MITRE CALDERA.
 func GetRedCreds(calderaPath string) (Credentials, error) {
 	creds := Credentials{}
 	cwd := goutils.Gwd()
