@@ -26,6 +26,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"math"
 	"net/http"
@@ -82,16 +83,18 @@ var (
 			if err = storedXSSDosVuln(caldera.Payload); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Payload": caldera.Payload,
-				}).Error("failed to introduce the exploit")
+				}).Error(color.RedString(err.Error()))
 			}
 		},
 	}
-
-	storedXSSDosSuccess = false
+	storedXSSDosSuccess bool
+	introPayload        bool
 )
 
 func init() {
 	rootCmd.AddCommand(StoredXSSDosCmd)
+	storedXSSDosSuccess = false
+	introPayload = false
 }
 
 // Payload is used to represent the POST
@@ -164,11 +167,16 @@ func storedXSSDosVuln(payload string) error {
 	}
 
 	// Selectors for chromeDP
+	pageSelector := "#nav-menu > ul:nth-child(2) > li:nth-child(4) > a"
+	createOPSelector := "#select-operation > div:nth-child(3) > button"
+	opNameSelector := "#op-name"
+	startSelector := "#operationsPage > div > div.modal.is-active > div.modal-card > footer > nav > div.level-right > div > button"
 	debriefSelector := "#nav-menu > ul:nth-child(4) > li:nth-child(4) > a"
 	operationSelector := "#tab-debrief > div > div:nth-child(3) > div.columns.mb-6 > div.column.is-3 > form > div > div > div > select > option"
 	dropdownSelector := "#debrief-graph > div.is-flex.graph-controls.m-2 > div > select"
-	imagePath := viper.GetString("image_path")
 	triggerVulnJS := "nodes = document.querySelectorAll('[id^=node]'); nodes.forEach((x, i) => x.dispatchEvent(new MouseEvent('mouseover', {'bubbles': true})));"
+
+	imagePath := viper.GetString("image_path")
 
 	// listen network event
 	listenForNetworkEvent(caldera.Driver.Context)
@@ -180,8 +188,13 @@ func storedXSSDosVuln(payload string) error {
 				err := chromedp.Run(caldera.Driver.Context,
 					page.HandleJavaScriptDialog(true))
 
-				// If we have gotten here, the exploit succeeded.
-				storedXSSDosSuccess = true
+				// Account for initial payload introduction
+				if !introPayload {
+					introPayload = true
+				} else {
+					// If we have gotten here, the exploit succeeded.
+					storedXSSDosSuccess = true
+				}
 
 				if err != nil {
 					panic(err)
@@ -191,6 +204,12 @@ func storedXSSDosVuln(payload string) error {
 	})
 	if err := chromedp.Run(caldera.Driver.Context,
 		network.Enable(),
+		chromedp.Click(pageSelector),
+		chromedp.Sleep(Wait(1000)),
+		chromedp.Click(createOPSelector),
+		chromedp.SendKeys(opNameSelector, payload),
+		chromedp.Click(startSelector),
+		chromedp.Sleep(Wait(1000)),
 		chromedp.Click(debriefSelector),
 		chromedp.Sleep(Wait(1000)),
 		chromedp.Click(operationSelector),
@@ -245,18 +264,16 @@ func storedXSSDosVuln(payload string) error {
 
 	if err := os.WriteFile(imagePath+"2.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")
-		return err
 	}
 
 	if storedXSSDosSuccess {
-		log.WithFields(log.Fields{
-			"Payload": payload,
-		}).Error(color.RedString("failure: Stored XSS Dos ran successfully"))
-	} else {
-		log.WithFields(log.Fields{
-			"Payload": payload,
-		}).Info(color.GreenString("Success: Stored XSS Dos failed to run"))
+		errMsg := "failure: Stored XSS Dos ran successfully"
+		return errors.New(errMsg)
 	}
+
+	log.WithFields(log.Fields{
+		"Payload": payload,
+	}).Info(color.GreenString("Success: Stored XSS Dos failed to run"))
 
 	return nil
 }

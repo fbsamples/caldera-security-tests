@@ -25,6 +25,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/bitfield/script"
 	"github.com/fatih/color"
@@ -102,6 +103,24 @@ func CreateTestEnvVuln() error {
 	if err != nil {
 		log.WithError(err).Error("failed to checkout older branch")
 		return err
+	}
+
+	if err := goutils.Cd(filepath.Join("plugins", "debrief")); err != nil {
+		log.WithError(err).WithFields(log.Fields{
+			"Repo Path": caldera.RepoPath,
+		}).Error("failed to navigate to the caldera repo")
+	}
+
+	_, err = script.Exec("git checkout 7ea5d726538a27bdc33613b1c23d822f73935c6f").Stdout()
+	if err != nil {
+		log.WithError(err).Error("failed to checkout older debrief plugin branch")
+		return err
+	}
+
+	if err := goutils.Cd("../../"); err != nil {
+		log.WithError(err).WithFields(log.Fields{
+			"Repo Path": caldera.RepoPath,
+		}).Error("failed to navigate to the caldera repo")
 	}
 
 	_, err = script.Exec("docker compose up -d --force-recreate --build").Stdout()

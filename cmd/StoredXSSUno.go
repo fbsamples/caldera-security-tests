@@ -24,6 +24,7 @@ package cmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -78,16 +79,16 @@ var (
 			if err = storedXSSUnoVuln(caldera.Payload); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Payload": caldera.Payload,
-				}).Error("failed to introduce the exploit")
+				}).Error(color.RedString(err.Error()))
 			}
 		},
 	}
-
-	storedXSSUnoSuccess = false
+	storedXSSUnoSuccess bool
 )
 
 func init() {
 	rootCmd.AddCommand(StoredXSSUnoCmd)
+	storedXSSUnoSuccess = false
 }
 
 func storedXSSUnoVuln(payload string) error {
@@ -112,7 +113,7 @@ func storedXSSUnoVuln(payload string) error {
 					page.HandleJavaScriptDialog(true))
 
 				// If we have gotten here, the exploit succeeded.
-				storedXSSDosSuccess = true
+				storedXSSUnoSuccess = true
 
 				if err != nil {
 					panic(err)
@@ -177,14 +178,13 @@ func storedXSSUnoVuln(payload string) error {
 	}
 
 	if storedXSSUnoSuccess {
-		log.WithFields(log.Fields{
-			"Payload": payload,
-		}).Error(color.RedString("failure: Stored XSS Uno ran successfully"))
-	} else {
-		log.WithFields(log.Fields{
-			"Payload": payload,
-		}).Info(color.GreenString("Success: Stored XSS Uno failed to run"))
+		errMsg := "failure: Stored XSS Uno ran successfully"
+		return errors.New(errMsg)
 	}
+
+	log.WithFields(log.Fields{
+		"Payload": payload,
+	}).Info(color.GreenString("Success: Stored XSS Uno failed to run"))
 
 	return nil
 }
