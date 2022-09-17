@@ -1,5 +1,5 @@
 ---
-name: Security Regression Pipeline
+name: Baseline test with vulnerable version
 on:
   pull_request:
   push:
@@ -10,7 +10,7 @@ on:
     - cron: "0 0 * * 0"
 jobs:
   tests:
-    name: Run security regression tests
+    name: Ensure exploits work as expected against known vulnerable deployment
     runs-on: ubuntu-latest
     steps:
       - name: Set up git repository

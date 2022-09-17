@@ -2,8 +2,9 @@
 
 [![License](https://img.shields.io/github/license/l50/goutils?label=license&style=flat&color=blue&logo=github)](https://github.com/fbsamples/caldera-security-tests/blob/main/LICENSE)
 [![🚨 Semgrep Analysis](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml)
-[![goreleaser](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml)
-[![Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml)
+[![goreleaser](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yaml)
+[![Baseline Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml)
+[![Security Regression Pipeline](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml)
 
 This project was created to provide a proof of concept example of a security regression
 pipeline for vulnerabilities that were discovered
