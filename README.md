@@ -1,20 +1,33 @@
-# Caldera Security Tests
+# CALDERA Security Regression Pipeline
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](https://github.com/fbsamples/caldera-security-tests/blob/main/LICENSE)
 [![🚨 Semgrep Analysis](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml)
 [![goreleaser](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yml)
 [![Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/tests.yaml)
 
-Execute two Stored XSS vulnerabilities that were found in
-[MITRE Caldera](https://github.com/mitre/caldera) by [Jayson Grace](https://techvomit.net)
-from the Meta Purple Team.
+This project was created to provide examples of security regression tests for
+vulnerabilities that were discovered in [MITRE CALDERA](https://github.com/mitre/caldera)
+by [Jayson Grace](https://techvomit.net) from Meta's Purple Team.
+
+The attacks are run against a fresh test environment with the latest
+MITRE CALDERA on a weekly basis using
+[Github Actions](https://github.com/features/actions). Because patches
+have been created for all of the discovered
+vulnerabilities, the attacks are expected to fail.
+
+If any of the vulnerabilities are successful during one of these runs,
+an issue is automatically created noting the regression.
+
+Ideally this should be run as part of a CI/CD pipeline, but it can also work
+as a standalone entity for Purple Team engagements, pentests, etc.
 
 ## Table of Contents
 
-- [Usage](#usage)
-- [Hacking on the Project](#hacking-on-the-project)
-  - [Dependencies](#dependencies)
-  - [Developer Environment Setup](#developer-environment-setup)
+- [CALDERA Security Regression Pipeline](#caldera-security-regression-pipeline)
+  - [Usage](#usage)
+  - [Hacking on the Project](#hacking-on-the-project)
+    - [Dependencies](#dependencies)
+    - [Developer Environment Setup](#developer-environment-setup)
 
 ---
 
