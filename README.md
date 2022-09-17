@@ -37,6 +37,18 @@ engagements, pentests, etc.
 
 ## Usage
 
+---
+
+### Apple Silicon users
+
+Run this command:
+
+```bash
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+```
+
+---
+
 Create test environment:
 
 ```bash
