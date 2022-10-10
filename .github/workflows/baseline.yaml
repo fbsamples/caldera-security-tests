@@ -24,14 +24,11 @@ jobs:
       - name: Install chrome
         uses: browser-actions/setup-chrome@latest
 
-      - name: Install shfmt
-        run: go install mvdan.cc/sh/v3/cmd/shfmt@latest
-
       - name: Install mage
         run: go install github.com/magefile/mage@latest
 
-      - name: Compile magefile
-        run: mage -d .mage/ -compile ../magefile
+      - name: Compile binary
+        run: mage compile linux
 
       - name: Set git config
         run: |
@@ -43,12 +40,6 @@ jobs:
           pushd ..
           git clone https://github.com/mitre/caldera.git --recursive
           popd
-
-      - name: Install pre-commit hooks
-        run: ./magefile installDeps
-
-      - name: Compile binary
-        run: ./magefile compile linux
 
       - name: Create vulnerable test environment
         run: ./bin/cst-linux TestEnv -v
