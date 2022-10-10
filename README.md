@@ -28,16 +28,17 @@ engagements, pentests, etc.
 
 ## Table of Contents
 
-- [Usage](#usage)
+- [Setup](#setup)
+  - [Apple Silicon users](#apple-silicon-users)
+  - [Test Environment Preparation](#test-environment-preparation)
+- [Running the tests locally](#running-the-tests-locally)
 - [Hacking on the Project](#hacking-on-the-project)
   - [Dependencies](#dependencies)
   - [Developer Environment Setup](#developer-environment-setup)
 
 ---
 
-## Usage
-
----
+## Setup
 
 ### Apple Silicon users
 
@@ -47,19 +48,27 @@ Run this command:
 export DOCKER_DEFAULT_PLATFORM=linux/amd64
 ```
 
+### Test Environment Preparation
+
+1. Download the release binary from github
+   and drop it in a directory:
+
+   ```bash
+   mkdir bin && cd $_
+   # Put downloaded binary here
+   ```
+
+2. Clone the caldera repo:
+
+   ```bash
+   cd ../ && git clone https://github.com/mitre/caldera.git
+   ```
+
 ---
 
-Create test environment:
+## Running the tests locally
 
-```bash
-git clone https://github.com/mitre/caldera.git
-git clone https://github.com/fbsamples/caldera-security-tests
-cd caldera-security-tests
-# Download the release binary and drop it in ./bin/
-# from the root of the repo.
-```
-
-Create vulnerable test environment, run the first XSS,
+Create vulnerable test environment, run the [first XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-5m86-x5ph-jc47),
 and tear the test environment down:
 
 ```bash
@@ -69,7 +78,7 @@ export OS="$(uname | python3 -c "print(open(0).read().lower().strip())")"
 ./bin/"cst-${OS}" TestEnv -d
 ```
 
-Create vulnerable test environment, run the second XSS,
+Create vulnerable test environment, run the [second XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-2gjc-v4hv-m4p9),
 and tear the test environment down:
 
 ```bash
@@ -79,7 +88,7 @@ and tear the test environment down:
 ```
 
 Create test environment using the most recent commit
-to the default CALDERA branch, try running both attacks,
+to the default CALDERA branch, try running all attacks,
 and tear the test environment down:
 
 ```bash
