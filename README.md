@@ -176,29 +176,27 @@ command in the above example is run.
    gvm pkgset use "${PROJECT}"
    ```
 
-3. Generate the `magefile` binary:
+3. Install dependencies:
 
    ```bash
-   mage -d .mage/ installDeps
-   mage -d -compile ../magefile
+   mage installDeps
    ```
 
-4. Install pre-commit hooks and dependencies:
+4. Install pre-commit hooks:
 
    ```bash
-   mage -d .mage/ installDeps
-   mage -d .mage/ installPreCommitHooks
+   mage installPreCommitHooks
    ```
 
 5. Update and run pre-commit hooks locally:
 
    ```bash
-   ./magefile runPreCommit
+   mage runPreCommit
    ```
 
 6. Compile binary:
 
    ```bash
    export OS="$(uname | python3 -c "print(open(0).read().lower().strip())")"
-   ./magefile compile ${OS}
+   mage compile "${OS}"
    ```
