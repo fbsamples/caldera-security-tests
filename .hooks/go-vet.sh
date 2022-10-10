@@ -6,6 +6,7 @@ for dir in */; do
     if [[ "${dir}" != ".mage" ]] \
                               && [[ "${dir}" != ".hooks/" ]] \
                               && [[ "${dir}" != "config/" ]] \
+                              && [[ "${dir}" != "magefiles/" ]] \
                               && [[ "${dir}" != "cmd/" ]] \
                               && [[ "${dir}" != "bin/" ]] \
                               && [[ "${dir}" != "images/" ]] \
