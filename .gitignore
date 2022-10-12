@@ -1,0 +1,20 @@
+# File created for debugging with vscode
+mage_output_file.go
+
+# mage binary
+magefile
+
+# Code coverage output file
+coverage-all.out
+
+# Distribution directory for binaries
+bin/
+
+# Generated config
+config/*
+
+# Generated images
+images/*.png
+
+# Generated  log files
+*.log
