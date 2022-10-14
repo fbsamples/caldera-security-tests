@@ -58,7 +58,7 @@ jobs:
       - name: Clone CALDERA repo
         run: |
           pushd ..
-          git clone https://github.com/mitre/caldera.git --recursive
+          git clone https://github.com/mitre/caldera.git --recursive caldera-latest
           popd
 
       - name: Create vulnerable test environment

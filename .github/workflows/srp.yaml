@@ -28,6 +28,10 @@ on:
   # Run once a week (see https://crontab.guru)
   schedule:
     - cron: "0 0 * * 0"
+
+  # Required to create a reusable workflow
+  workflow_call:
+
 jobs:
   tests:
     name: Run security regression tests
@@ -35,6 +39,8 @@ jobs:
     steps:
       - name: Set up git repository
         uses: actions/checkout@v3
+        with:
+          repository: fbsamples/caldera-security-tests
 
       - name: Set up Go
         uses: actions/setup-go@v3
@@ -58,7 +64,7 @@ jobs:
       - name: Clone CALDERA repo
         run: |
           pushd ..
-          git clone https://github.com/mitre/caldera.git --recursive
+          git clone https://github.com/mitre/caldera.git --recursive caldera-latest
           popd
 
       - name: Create test environment
