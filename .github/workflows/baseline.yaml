@@ -58,7 +58,7 @@ jobs:
       - name: Clone CALDERA repo
         run: |
           pushd ..
-          git clone https://github.com/mitre/caldera.git --recursive
+          git clone https://github.com/mitre/caldera.git --recursive caldera-latest
           popd
 
       - name: Create vulnerable test environment
@@ -71,7 +71,7 @@ jobs:
       - name: Make sure the container is running
         run: |
           while [[ -z "$(curl --silent localhost:8888 | grep 'login.js')" ]]; do
-            pushd ../caldera && docker compose down && docker compose up -d; popd
+            pushd ../caldera-latest && docker compose down && docker compose up -d; popd
             sleep 60
           done
         shell: bash
