@@ -1,10 +1,10 @@
-# CALDERA Security Regression Pipeline PoC
+# CALDERA Security Regression Pipeline (SRP)
 
 [![License](https://img.shields.io/github/license/l50/goutils?label=License&style=flat&color=blue&logo=github)](https://github.com/fbsamples/caldera-security-tests/blob/main/LICENSE)
 [![🚨 Semgrep Analysis](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml)
 [![goreleaser](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/goreleaser.yaml)
 [![Baseline Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml)
-[![Security Regression Pipeline](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yml)
+[![Security Regression Pipeline](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml)
 
 This project was created to provide a proof of concept example of a
 Security Regression Pipeline for vulnerabilities that were discovered
@@ -31,7 +31,9 @@ engagements, pentests, etc.
 - [Setup](#setup)
   - [Apple Silicon users](#apple-silicon-users)
   - [Test Environment Preparation](#test-environment-preparation)
-- [Running the tests locally](#running-the-tests-locally)
+- [Running the SRP](#running-the-srp)
+  - [Using Github Actions](#using-github-actions)
+  - [Locally](#locally)
 - [Hacking on the Project](#hacking-on-the-project)
   - [Dependencies](#dependencies)
   - [Developer Environment Setup](#developer-environment-setup)
@@ -66,7 +68,38 @@ export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 ---
 
-## Running the tests locally
+## Running the MITRE CALDERA SRP
+
+### Using Github Actions
+
+You can incorporate the CALDERA SRP into your CALDERA fork
+by creating `.github/workflows/srp.yaml` and populating
+it with the following contents:
+
+```yaml
+name: CALDERA Security Regression Pipeline
+on:
+  pull_request:
+  push:
+    branches: [master]
+
+  # Run once a week (see https://crontab.guru)
+  schedule:
+    - cron: "0 0 * * 0"
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  tests:
+    uses: fbsamples/caldera-security-tests/.github/workflows/srp.yaml@main
+```
+
+You can use the outcomes of these workflow runs to gate
+updates for your CALDERA deployments if a security regression
+in the latest CALDERA release is detected.
+
+### Locally
 
 Create vulnerable test environment, run the [first XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-5m86-x5ph-jc47),
 and tear the test environment down:
