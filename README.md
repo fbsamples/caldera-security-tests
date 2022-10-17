@@ -1,4 +1,4 @@
-# CALDERA Security Regression Pipeline (SRP)
+# CALDERA Security Regression Pipeline
 
 [![License](https://img.shields.io/github/license/l50/goutils?label=License&style=flat&color=blue&logo=github)](https://github.com/fbsamples/caldera-security-tests/blob/main/LICENSE)
 [![🚨 Semgrep Analysis](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/semgrep.yaml)
@@ -6,23 +6,25 @@
 [![Baseline Tests](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/baseline.yaml)
 [![Security Regression Pipeline](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml/badge.svg)](https://github.com/fbsamples/caldera-security-tests/actions/workflows/srp.yaml)
 
-This project was created to provide a proof of concept example of a
-Security Regression Pipeline for vulnerabilities that were discovered
-in [MITRE CALDERA](https://github.com/mitre/caldera)
+This project was created to provide an example of a TTP Runner
+and accompanying Security Regression Pipeline (SRP) for vulnerabilities
+that were discovered in [MITRE CALDERA](https://github.com/mitre/caldera)
 by [Jayson Grace](https://techvomit.net) from Meta's Purple Team.
 
-The attacks are run against a fresh test environment with the latest
+The attacks that are automated using the TTP Runner are
+run regularly against a fresh test environment with the latest
 MITRE CALDERA on a weekly basis using
 [Github Actions](https://github.com/features/actions). Because patches
 have been created for all of the discovered
-vulnerabilities, the attacks are expected to fail.
+vulnerabilities, these attacks are expected to fail.
 
-If any of the vulnerabilities are successful during one of these runs,
+If any of the attacks land successfully during one of these runs,
 an issue is automatically created noting the regression.
 
-Ideally this should be run as part of a CI/CD pipeline gating commits,
-but it can also work as a standalone entity for Purple Team
-engagements, pentests, etc.
+Ideally this should be run as part of a CALDERA IaC deployment
+pipeline to gate commits. However, it can also be used as a
+standalone tool for Purple Team engagements, pentests, etc.
+that include CALDERA in the scope.
 
 ---
 
@@ -31,9 +33,9 @@ engagements, pentests, etc.
 - [Setup](#setup)
   - [Apple Silicon users](#apple-silicon-users)
   - [Test Environment Preparation](#test-environment-preparation)
-- [Running the SRP](#running-the-srp)
-  - [Using Github Actions](#using-github-actions)
-  - [Locally](#locally)
+- [Execution](#execution)
+  - [Run TTP Runner in SRP](#run-ttp-runner-in-srp)
+  - [Run TTP Runner Locally](#run-ttp-runner-locally)
 - [Hacking on the Project](#hacking-on-the-project)
   - [Dependencies](#dependencies)
   - [Developer Environment Setup](#developer-environment-setup)
@@ -68,13 +70,12 @@ export DOCKER_DEFAULT_PLATFORM=linux/amd64
 
 ---
 
-## Running the MITRE CALDERA SRP
+## Execution
 
-### Using Github Actions
+### Run TTP Runner in SRP
 
 You can incorporate the CALDERA SRP into your CALDERA fork
-by creating `.github/workflows/srp.yaml` and populating
-it with the following contents:
+by creating `.github/workflows/srp.yaml` and populating it with the following contents:
 
 ```yaml
 name: CALDERA Security Regression Pipeline
@@ -95,11 +96,11 @@ jobs:
     uses: fbsamples/caldera-security-tests/.github/workflows/srp.yaml@main
 ```
 
-You can use the outcomes of these workflow runs to gate
-updates for your CALDERA deployments if a security regression
-in the latest CALDERA release is detected.
+The outcomes of these workflow runs can
+be used to gate updates for your CALDERA deployments if a security regression is
+detected in the latest CALDERA release.
 
-### Locally
+### Run TTP Runner Locally
 
 Create vulnerable test environment, run the [first XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-5m86-x5ph-jc47),
 and tear the test environment down:
