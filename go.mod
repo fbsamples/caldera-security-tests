@@ -10,7 +10,7 @@ require (
 	github.com/l50/goutils v1.1.3
 	github.com/magefile/mage v1.14.0
 	github.com/sirupsen/logrus v1.9.0
-	github.com/spf13/cobra v1.6.0
+	github.com/spf13/cobra v1.6.1
 	github.com/spf13/viper v1.13.0
 )
 
