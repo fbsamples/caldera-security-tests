@@ -33,21 +33,19 @@ jobs:
       - name: Install homebrew
         uses: homebrew/actions/setup-homebrew@master
 
-      - name: Install pre-commit
-        run: brew install pre-commit
-
       - name: Install go module dependencies
         run: |
           go install mvdan.cc/sh/v3/cmd/shfmt@latest
           go install github.com/magefile/mage@latest
 
-      - name: Install shell linting tools
+      - name: Install brew dependencies
         run: |
+          brew install pre-commit
           brew install shellcheck
           brew install shfmt
 
       - name: Install pre-commit hooks
-        run: mage installPreCommitHooks
+        run: mage installDeps
 
       - name: Run pre-commit autoupdate action
         uses: browniebroke/pre-commit-autoupdate-action@main
