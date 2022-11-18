@@ -45,7 +45,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v3
         with:
-          go-version: 1.18
+          go-version: 1.19
 
       - name: Install chrome
         uses: browser-actions/setup-chrome@latest
@@ -85,8 +85,8 @@ jobs:
       - name: Run security regression test for first XSS
         run: ./bin/cst-linux StoredXSSUno
 
-      - name: Run security regression test for second XSS
-        run: ./bin/cst-linux StoredXSSDos
+      # - name: Run security regression test for second XSS
+      #   run: ./bin/cst-linux StoredXSSDos
 
       - name: Destroy test environment
         run: ./bin/cst-linux TestEnv -d
