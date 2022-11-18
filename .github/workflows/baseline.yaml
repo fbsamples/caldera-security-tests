@@ -32,6 +32,7 @@ jobs:
   tests:
     name: Ensure exploits work as expected against known vulnerable deployment
     runs-on: ubuntu-latest
+    # runs-on: macos-latest
     steps:
       - name: Set up git repository
         uses: actions/checkout@v3
@@ -41,6 +42,15 @@ jobs:
         with:
           go-version: 1.19
 
+      # - name: Install homebrew
+      #   uses: homebrew/actions/setup-homebrew@master
+
+      # - name: Install brew dependencies and start colima
+      #   run: |
+      #     brew install docker docker-compose
+      #     brew install --HEAD colima
+      #     colima start
+
       - name: Install chrome
         uses: browser-actions/setup-chrome@latest
 
@@ -48,7 +58,7 @@ jobs:
         run: go install github.com/magefile/mage@latest
 
       - name: Compile binary
-        run: mage compile linux
+        run: mage compile "$(uname | python3 -c 'print(open(0).read().lower().strip())')"
 
       - name: Set git config
         run: |
@@ -62,28 +72,23 @@ jobs:
           popd
 
       - name: Create vulnerable test environment
-        run: ./bin/cst-linux TestEnv -v
+        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" TestEnv -v
 
-      - name: Sleep for 20 seconds
-        run: sleep 20s
-        shell: bash
-
-      - name: Make sure the container is running
+      - name: Wait until container is running
         run: |
           while [[ -z "$(curl --silent localhost:8888 | grep 'login.js')" ]]; do
-            pushd ../caldera-latest && docker compose down && docker compose up -d; popd
-            sleep 60
+            sleep 60s
           done
         shell: bash
 
       - name: Run security regression test for first XSS
-        run: ./bin/cst-linux StoredXSSUno
+        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" StoredXSSUno
 
-      # - name: Run security regression test for second XSS
-      #   run: ./bin/cst-linux StoredXSSDos
+      - name: Run security regression test for second XSS
+        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" StoredXSSDos
 
       - name: Destroy test environment
-        run: ./bin/cst-linux TestEnv -d
+        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" TestEnv -d
 
       - name: Report failure
         uses: nashmaniac/create-issue-action@v1.1
