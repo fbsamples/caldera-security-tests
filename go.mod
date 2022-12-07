@@ -3,7 +3,7 @@ module github.com/fbsamples/caldera-security-tests
 go 1.19
 
 require (
-	github.com/bitfield/script v0.21.2
+	github.com/bitfield/script v0.21.4
 	github.com/chromedp/cdproto v0.0.0-20220924210414-0e3390be1777
 	github.com/chromedp/chromedp v0.8.6
 	github.com/fatih/color v1.13.0
