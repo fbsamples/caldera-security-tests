@@ -4,8 +4,8 @@ go 1.19
 
 require (
 	github.com/bitfield/script v0.21.4
-	github.com/chromedp/cdproto v0.0.0-20220924210414-0e3390be1777
-	github.com/chromedp/chromedp v0.8.6
+	github.com/chromedp/cdproto v0.0.0-20230109101555-6b041c6303cc
+	github.com/chromedp/chromedp v0.8.7
 	github.com/fatih/color v1.13.0
 	github.com/l50/goutils v1.1.7
 	github.com/magefile/mage v1.14.0
