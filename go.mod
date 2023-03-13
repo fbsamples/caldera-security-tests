@@ -6,7 +6,7 @@ require (
 	github.com/bitfield/script v0.21.4
 	github.com/chromedp/cdproto v0.0.0-20220924210414-0e3390be1777
 	github.com/chromedp/chromedp v0.8.6
-	github.com/fatih/color v1.14.1
+	github.com/fatih/color v1.15.0
 	github.com/l50/goutils v1.2.2
 	github.com/magefile/mage v1.14.0
 	github.com/sirupsen/logrus v1.9.0
