@@ -128,7 +128,7 @@ func storedXSSDosVuln(payload string) error {
 
 	if err := chromedp.Run(caldera.Driver.Context,
 		chromedp.ActionFunc(func(ctx context.Context) error {
-			cookies, err := network.GetAllCookies().Do(ctx)
+			cookies, err := network.GetCookies().Do(ctx)
 			if err != nil {
 				log.WithError(err).Error("failed to retrieve cookies")
 				return err

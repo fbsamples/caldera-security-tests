@@ -172,7 +172,7 @@ command in the above example is run.
 - [Install golang](https://go.dev/):
 
   ```bash
-  gvm install go1.18
+  source .gvm
   ```
 
 - [Install pre-commit](https://pre-commit.com/):
@@ -189,46 +189,40 @@ command in the above example is run.
 
 ### Developer Environment Setup
 
-0. [Fork this project](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
+1. [Fork this project](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
 
-1. Clone your forked repo and caldera:
-
-   ```bash
-   git clone https://github.com/fbsamples/caldera-security-tests.git
-   git clone https://github.com/mitre/caldera.git
-   ```
-
-2. (Optional) If you installed gvm, create golang pkgset specifically for this project:
+1. (Optional) If you installed gvm:
 
    ```bash
-   VERSION='1.18'
-   PROJECT=caldera-security-tests
-
-   gvm install "go${VERSION}"
-   gvm use "go${VERSION}"
-   gvm pkgset create "${PROJECT}"
-   gvm pkgset use "${PROJECT}"
+   source "${HOME}/.gvm"
    ```
 
-3. Install dependencies:
+1. Install dependencies:
 
    ```bash
    mage installDeps
    ```
 
-4. Install pre-commit hooks:
+1. Install pre-commit hooks and dependencies:
 
    ```bash
    mage installPreCommitHooks
    ```
 
-5. Update and run pre-commit hooks locally:
+1. Update and run pre-commit hooks locally:
 
    ```bash
    mage runPreCommit
    ```
 
-6. Compile binary:
+1. Clone your forked repo and caldera:
+
+   ```bash
+   git clone https://github.com/your/caldera-security-tests.git
+   git clone https://github.com/mitre/caldera.git
+   ```
+
+1. Compile binary:
 
    ```bash
    export OS="$(uname | python3 -c "print(open(0).read().lower().strip())")"

@@ -16,7 +16,7 @@ all
 # https://github.com/markdownlint/markdownlint/blob/master/docs/creating_styles.md#parameters
 
 # Ignore line length in code blocks.
-rule 'MD013', code_blocks: false
+rule 'MD013', :ignore_code_blocks => true
 
 #===============================================================================
 # Exclude the rules I disagree with.
@@ -27,6 +27,7 @@ rule 'MD013', code_blocks: false
 #   - second indent
 # * Another major bullet
 exclude_rule 'MD004' # Unordered list style
+exclude_rule 'MD007' # Unordered list indentation
 
 # Ordered lists are fine.
 exclude_rule 'MD029'
