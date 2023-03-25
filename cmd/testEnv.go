@@ -24,7 +24,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/bitfield/script"
@@ -36,9 +35,9 @@ import (
 )
 
 var (
-	// TestEnvCmd represents the TestEnv command
-	TestEnvCmd = &cobra.Command{
-		Use:   "TestEnv",
+	// testEnvCmd represents the testEnv command
+	testEnvCmd = &cobra.Command{
+		Use:   "testEnv",
 		Short: "Create/Destroy test environment",
 		Long: `Facilitate the creation or destruction
 	of a test environment using docker compose.`,
@@ -52,50 +51,45 @@ var (
 			if err := goutils.Cd(caldera.RepoPath); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Repo Path": caldera.RepoPath,
-				}).Error("failed to navigate to the caldera repo")
-				os.Exit(1)
+				}).Fatal("failed to navigate to the caldera repo")
 			}
 
 			if vuln {
-				if err = CreateTestEnvVuln(); err != nil {
-					log.WithError(err).Error("failed to create vulnerable test environment")
-					os.Exit(1)
+				if err = createTestEnvVuln(); err != nil {
+					log.WithError(err).Fatal("failed to create vulnerable test environment")
 				}
 			} else if destroy {
-				if err = DestroyTestEnv(); err != nil {
-					log.WithError(err).Error("failed to destroy test environment")
-					os.Exit(1)
+				if err = destroyTestEnv(); err != nil {
+					log.WithError(err).Fatal("failed to destroy test environment")
 				}
 			} else if recent {
-				if err = CreateTestEnvRecent(); err != nil {
-					log.WithError(err).Error("failed to create recent test environment")
-					os.Exit(1)
+				if err = createTestEnvRecent(); err != nil {
+					log.WithError(err).Fatal("failed to create recent test environment")
 				}
 			}
 
 			if err := goutils.Cd(cwd); err != nil {
 				log.WithError(err).WithFields(log.Fields{
 					"Current Working Directory": cwd,
-				}).Error("failed to navigate back from the caldera repo")
-				os.Exit(1)
+				}).Fatal("failed to navigate back from the caldera repo")
 			}
 		},
 	}
 )
 
 func init() {
-	rootCmd.AddCommand(TestEnvCmd)
-	TestEnvCmd.Flags().BoolP(
+	rootCmd.AddCommand(testEnvCmd)
+	testEnvCmd.Flags().BoolP(
 		"vuln", "v", false, "Create vulnerable test environment.")
-	TestEnvCmd.Flags().BoolP(
+	testEnvCmd.Flags().BoolP(
 		"recent", "r", false, "Create test environment with the most "+
 			"recent commit to the CALDERA's default branch.")
-	TestEnvCmd.Flags().BoolP(
+	testEnvCmd.Flags().BoolP(
 		"destroy", "d", false, "Destroy the test environment.")
 }
 
-// CreateTestEnvVuln deploys an insecure version of Caldera using docker compose.
-func CreateTestEnvVuln() error {
+// createTestEnvVuln deploys an insecure version of Caldera using docker compose.
+func createTestEnvVuln() error {
 	fmt.Println(color.YellowString(
 		"Deploying Caldera container via docker compose, please wait..."))
 
@@ -132,8 +126,8 @@ func CreateTestEnvVuln() error {
 	return nil
 }
 
-// CreateTestEnvRecent deploys the most recent version of Caldera using docker compose.
-func CreateTestEnvRecent() error {
+// createTestEnvRecent deploys the most recent version of Caldera using docker compose.
+func createTestEnvRecent() error {
 	fmt.Println(color.YellowString(
 		"Deploying CALDERA container via docker compose, please wait..."))
 
@@ -152,8 +146,8 @@ func CreateTestEnvRecent() error {
 	return nil
 }
 
-// DestroyTestEnv destroys a CALDERA deployment created using docker compose
-func DestroyTestEnv() error {
+// destroyTestEnv destroys a CALDERA deployment created using docker compose
+func destroyTestEnv() error {
 	fmt.Println(color.YellowString(
 		"Destroying CALDERA container via docker compose, please wait..."))
 	_, err := script.Exec("docker-compose down -v").Stdout()

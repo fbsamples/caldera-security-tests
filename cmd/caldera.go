@@ -90,9 +90,9 @@ func setupChrome(caldera Caldera) (ChromeDP, []func(), error) {
 	return chrome, cancels, nil
 }
 
-// Login logs into CALDERA using Google Chrome with the input
+// login logs into CALDERA using Google Chrome with the input
 // credentials and returns an authenticated session.
-func Login(caldera Caldera) (Caldera, error) {
+func login(caldera Caldera) (Caldera, error) {
 	// Selectors for chromeDP
 	rocketSelector := "#home > div.modal.is-active > div.modal-card > footer > button"
 	userSelector := "body > div > div > form > div:nth-child(1) > div > input"
@@ -119,9 +119,9 @@ func Login(caldera Caldera) (Caldera, error) {
 
 }
 
-// GetRedCreds navigates to the input calderaPath to
+// getRedCreds navigates to the input calderaPath to
 // retrieve the red user credentials for MITRE CALDERA.
-func GetRedCreds(calderaPath string) (Credentials, error) {
+func getRedCreds(calderaPath string) (Credentials, error) {
 	creds := Credentials{}
 	cwd := goutils.Gwd()
 	found := false

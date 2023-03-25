@@ -105,18 +105,27 @@ Create vulnerable test environment, run the [first XSS](https://github.com/metar
 and tear the test environment down:
 
 ```bash
-./caldera-security-tests TestEnv -v
-./caldera-security-tests StoredXSSUno
-./caldera-security-tests TestEnv -d
+./caldera-security-tests testEnv -v
+./caldera-security-tests storedXSSUno
+./caldera-security-tests testEnv -d
 ```
 
 Create vulnerable test environment, run the [second XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-2gjc-v4hv-m4p9),
 and tear the test environment down:
 
 ```bash
-./caldera-security-tests TestEnv -v
-./caldera-security-tests StoredXSSDos
-./caldera-security-tests TestEnv -d
+./caldera-security-tests testEnv -v
+./caldera-security-tests storedXSSDos
+./caldera-security-tests testEnv -d
+```
+
+Create vulnerable test environment, run the [third XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-7344-4pg9-qf45),
+and tear the test environment down:
+
+```bash
+./caldera-security-tests testEnv -v
+./caldera-security-tests storedXSSTres
+./caldera-security-tests testEnv -d
 ```
 
 Create test environment using the most recent commit
@@ -124,13 +133,14 @@ to the default CALDERA branch, try running all attacks,
 and tear the test environment down:
 
 ```bash
-./caldera-security-tests TestEnv -r
-./caldera-security-tests StoredXSSUno
-./caldera-security-tests StoredXSSDos
-./caldera-security-tests TestEnv -d
+./caldera-security-tests testEnv -r
+./caldera-security-tests storedXSSUno
+./caldera-security-tests storedXSSDos
+./caldera-security-tests storedXSSTres
+./caldera-security-tests testEnv -d
 ```
 
 Parameters for the tests can be modified
 in the generated `config/config.yaml` file.
-This file is created as soon as the `TestEnv`
+This file is created as soon as the `testEnv`
 command in the above example is run.
