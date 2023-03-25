@@ -69,7 +69,7 @@ jobs:
           popd
 
       - name: Create vulnerable test environment
-        run: ./caldera-security-tests TestEnv -v
+        run: ./caldera-security-tests testEnv -v
 
       - name: Wait until container is running
         run: |
@@ -79,13 +79,16 @@ jobs:
         shell: bash
 
       - name: Run security regression test for first XSS
-        run: ./caldera-security-tests StoredXSSUno
+        run: ./caldera-security-tests storedXSSUno
 
       - name: Run security regression test for second XSS
-        run: ./caldera-security-tests StoredXSSDos
+        run: ./caldera-security-tests storedXSSDos
+
+      - name: Run security regression test for third XSS
+        run: ./caldera-security-tests storedXSSTres
 
       - name: Destroy test environment
-        run: ./caldera-security-tests TestEnv -d
+        run: ./caldera-security-tests testEnv -d
 
       - name: Report failure
         uses: nashmaniac/create-issue-action@v1.1

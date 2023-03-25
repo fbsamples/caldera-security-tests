@@ -53,8 +53,8 @@ jobs:
 
       - name: Set git config
         run: |
-          git config --global user.name "John Doe"
-          git config --global user.email johndoe@example.com
+          git config --global user.name "Github Actions"
+          git config --global user.email actions@example.com
 
       - name: Clone CALDERA repo
         run: |
@@ -63,7 +63,7 @@ jobs:
           popd
 
       - name: Create test environment with the most recent caldera release
-        run: ./caldera-security-tests TestEnv -r
+        run: ./caldera-security-tests testEnv -r
 
       - name: Wait until container is running
         run: |
@@ -74,13 +74,16 @@ jobs:
         shell: bash
 
       - name: Run security regression test for first XSS
-        run: ./caldera-security-tests StoredXSSUno
+        run: ./caldera-security-tests storedXSSUno
 
       - name: Run security regression test for second XSS
-        run: ./caldera-security-tests StoredXSSDos
+        run: ./caldera-security-tests storedXSSDos
+
+      - name: Run security regression test for third XSS
+        run: ./caldera-security-tests storedXSSTres
 
       - name: Destroy test environment
-        run: ./caldera-security-tests TestEnv -d
+        run: ./caldera-security-tests testEnv -d
 
       - name: Report failure
         uses: nashmaniac/create-issue-action@v1.1
