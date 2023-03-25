@@ -95,15 +95,36 @@ func InstallDeps() error {
 	return nil
 }
 
+// InstallPreCommitHooks Installs pre-commit hooks locally
+func InstallPreCommitHooks() error {
+	mg.Deps(InstallDeps)
+
+	fmt.Println(color.YellowString("Installing pre-commit hooks."))
+	if err := goutils.InstallPCHooks(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 // RunPreCommit runs all pre-commit hooks locally
 func RunPreCommit() error {
 	mg.Deps(InstallDeps)
-	mg.Deps(goutils.InstallPCHooks)
-	mg.Deps(goutils.UpdatePCHooks)
-	mg.Deps(goutils.ClearPCCache)
+	fmt.Println(color.YellowString("Updating pre-commit hooks."))
+	if err := goutils.UpdatePCHooks(); err != nil {
+		return err
+	}
+
+	fmt.Println(color.YellowString(
+		"Clearing the pre-commit cache to ensure we have a fresh start."))
+	if err := goutils.ClearPCCache(); err != nil {
+		return err
+	}
 
 	fmt.Println(color.YellowString("Running all pre-commit hooks locally."))
-	mg.Deps(goutils.RunPCHooks)
+	if err := goutils.RunPCHooks(); err != nil {
+		return err
+	}
 
 	return nil
 }
