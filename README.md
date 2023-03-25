@@ -30,49 +30,48 @@ that include CALDERA in the scope.
 
 ## Table of Contents
 
-- [Setup](#setup)
-  - [Apple Silicon users](#apple-silicon-users)
+- [Getting Started](#getting-started)
   - [Test Environment Preparation](#test-environment-preparation)
 - [Execution](#execution)
-  - [Run TTP Runner in SRP](#run-ttp-runner-in-srp)
-  - [Run TTP Runner Locally](#run-ttp-runner-locally)
-- [Hacking on the Project](#hacking-on-the-project)
-  - [Dependencies](#dependencies)
-  - [Developer Environment Setup](#developer-environment-setup)
+  - [Execute TTP Runner in SRP](#execute-ttp-runner-in-srp)
+  - [Execute TTP Runner Locally](#execute-ttp-runner-locally)
 
 ---
 
-## Setup
-
-### Apple Silicon users
-
-Run this command:
-
-```bash
-export DOCKER_DEFAULT_PLATFORM=linux/amd64
-```
+## Getting Started
 
 ### Test Environment Preparation
 
-1. Download the release binary from github
-   and drop it in a directory:
+- Run this command if on an ARM-based macOS system:
 
-   ```bash
-   mkdir bin && cd $_
-   # Put downloaded binary here
-   ```
+  ```bash
+  export ARCH="$(uname -a | awk '{ print $NF }')"
+  if [[ $ARCH == "arm64" ]]; then
+      export DOCKER_DEFAULT_PLATFORM=linux/amd64
+  fi
+  ```
 
-2. Clone the caldera repo:
+- Download the latest caldera-security-tests release from github or run this:
 
-   ```bash
-   cd ../ && git clone https://github.com/mitre/caldera.git
-   ```
+  ```bash
+  export ARCH="$(uname -a | awk '{ print $NF }')"
+  export OS="$(uname | python3 -c 'print(open(0).read().lower().strip())')"
+  gh release download -p "*${OS}_${ARCH}.tar.gz"
+  tar -xvf *tar.gz
+  ```
+
+- Clone the caldera repo:
+
+  ```bash
+  # From the caldera-security-tests repo root
+  pushd ../ && git clone https://github.com/mitre/caldera.git && popd
+  ```
 
 ---
 
 ## Execution
 
-### Run TTP Runner in SRP
+### Execute TTP Runner in SRP
 
 You can incorporate the CALDERA SRP into your CALDERA fork
 by creating `.github/workflows/srp.yaml` and populating it with the following contents:
@@ -100,25 +99,24 @@ The outcomes of these workflow runs can
 be used to gate updates for your CALDERA deployments if a security regression is
 detected in the latest CALDERA release.
 
-### Run TTP Runner Locally
+### Execute TTP Runner Locally
 
 Create vulnerable test environment, run the [first XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-5m86-x5ph-jc47),
 and tear the test environment down:
 
 ```bash
-./bin/cst-darwin TestEnv -v
-export OS="$(uname | python3 -c "print(open(0).read().lower().strip())")"
-./bin/"cst-${OS}" StoredXSSUno
-./bin/"cst-${OS}" TestEnv -d
+./caldera-security-tests TestEnv -v
+./caldera-security-tests StoredXSSUno
+./caldera-security-tests TestEnv -d
 ```
 
 Create vulnerable test environment, run the [second XSS](https://github.com/metaredteam/external-disclosures/security/advisories/GHSA-2gjc-v4hv-m4p9),
 and tear the test environment down:
 
 ```bash
-./bin/cst-darwin TestEnv -v
-./bin/"cst-$(uname)" StoredXSSDos
-./bin/"cst-$(uname)" TestEnv -d
+./caldera-security-tests TestEnv -v
+./caldera-security-tests StoredXSSDos
+./caldera-security-tests TestEnv -d
 ```
 
 Create test environment using the most recent commit
@@ -126,105 +124,13 @@ to the default CALDERA branch, try running all attacks,
 and tear the test environment down:
 
 ```bash
-./bin/cst-darwin TestEnv -r
-./bin/"cst-$(uname)" StoredXSSUno
-./bin/"cst-$(uname)" StoredXSSDos
-./bin/"cst-$(uname)" TestEnv -d
+./caldera-security-tests TestEnv -r
+./caldera-security-tests StoredXSSUno
+./caldera-security-tests StoredXSSDos
+./caldera-security-tests TestEnv -d
 ```
 
 Parameters for the tests can be modified
 in the generated `config/config.yaml` file.
 This file is created as soon as the `TestEnv`
 command in the above example is run.
-
----
-
-## Hacking on the Project
-
-### Dependencies
-
-- [Install homebrew](https://brew.sh/):
-
-  ```bash
-  # Linux
-  sudo apt-get update
-  sudo apt-get install -y build-essential procps curl file git
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-
-  # macOS
-  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-  ```
-
-- [Install ruby](https://www.ruby-lang.org/en/):
-
-  ```bash
-  brew install ruby
-  ```
-
-- [Install gvm](https://github.com/moovweb/gvm):
-
-  ```bash
-  bash < <(curl -s -S -L https://raw.githubusercontent.com/moovweb/gvm/master/binscripts/gvm-installer)
-  source "${GVM_BIN}"
-  ```
-
-- [Install golang](https://go.dev/):
-
-  ```bash
-  source .gvm
-  ```
-
-- [Install pre-commit](https://pre-commit.com/):
-
-  ```bash
-  brew install pre-commit
-  ```
-
-- [Install Mage](https://magefile.org/):
-
-  ```bash
-  go install github.com/magefile/mage@latest
-  ```
-
-### Developer Environment Setup
-
-1. [Fork this project](https://docs.github.com/en/get-started/quickstart/fork-a-repo)
-
-1. (Optional) If you installed gvm:
-
-   ```bash
-   source "${HOME}/.gvm"
-   ```
-
-1. Install dependencies:
-
-   ```bash
-   mage installDeps
-   ```
-
-1. Install pre-commit hooks and dependencies:
-
-   ```bash
-   mage installPreCommitHooks
-   ```
-
-1. Update and run pre-commit hooks locally:
-
-   ```bash
-   mage runPreCommit
-   ```
-
-1. Clone your forked repo and caldera:
-
-   ```bash
-   git clone https://github.com/your/caldera-security-tests.git
-   git clone https://github.com/mitre/caldera.git
-   ```
-
-1. Compile binary:
-
-   ```bash
-   export OS="$(uname | python3 -c "print(open(0).read().lower().strip())")"
-   mage compile "${OS}"
-   ```

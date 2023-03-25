@@ -28,11 +28,11 @@ on:
   # Run once a week (see https://crontab.guru)
   schedule:
     - cron: "0 0 * * 0"
+
 jobs:
   tests:
     name: Ensure exploits work as expected against known vulnerable deployment
     runs-on: ubuntu-latest
-    # runs-on: macos-latest
     steps:
       - name: Set up git repository
         uses: actions/checkout@v3
@@ -40,7 +40,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: 1.19
+          go-version: "1.20"
 
       # - name: Install homebrew
       #   uses: homebrew/actions/setup-homebrew@master
@@ -54,16 +54,13 @@ jobs:
       - name: Install chrome
         uses: browser-actions/setup-chrome@latest
 
-      - name: Install mage
-        run: go install github.com/magefile/mage@latest
-
       - name: Compile binary
-        run: mage compile "$(uname | python3 -c 'print(open(0).read().lower().strip())')"
+        run: go build
 
       - name: Set git config
         run: |
-          git config --global user.name "John Doe"
-          git config --global user.email johndoe@example.com
+          git config --global user.name "Github Actions"
+          git config --global user.email actions@example.com
 
       - name: Clone CALDERA repo
         run: |
@@ -72,7 +69,7 @@ jobs:
           popd
 
       - name: Create vulnerable test environment
-        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" TestEnv -v
+        run: ./caldera-security-tests TestEnv -v
 
       - name: Wait until container is running
         run: |
@@ -82,13 +79,13 @@ jobs:
         shell: bash
 
       - name: Run security regression test for first XSS
-        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" StoredXSSUno
+        run: ./caldera-security-tests StoredXSSUno
 
       - name: Run security regression test for second XSS
-        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" StoredXSSDos
+        run: ./caldera-security-tests StoredXSSDos
 
       - name: Destroy test environment
-        run: ./bin/cst-"$(uname | python3 -c 'print(open(0).read().lower().strip())')" TestEnv -d
+        run: ./caldera-security-tests TestEnv -d
 
       - name: Report failure
         uses: nashmaniac/create-issue-action@v1.1

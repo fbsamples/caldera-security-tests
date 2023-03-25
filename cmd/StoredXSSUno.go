@@ -52,16 +52,14 @@ var (
 			caldera.RepoPath = viper.GetString("repo_path")
 			caldera.Creds, err = GetRedCreds(caldera.RepoPath)
 			if err != nil {
-				log.WithError(err).Errorf(
+				log.WithError(err).Fatalf(
 					"failed to get Caldera credentials: %v", err)
-				os.Exit(1)
 			}
 
 			caldera.Driver.Headless = viper.GetBool("headless")
 			driver, cancels, err := setupChrome(caldera)
 			if err != nil {
-				log.WithError(err).Error("failed to setup Chrome")
-				os.Exit(1)
+				log.WithError(err).Fatal("failed to setup Chrome")
 			}
 
 			defer cancelAll(cancels)
@@ -70,8 +68,7 @@ var (
 
 			caldera, err = Login(caldera)
 			if err != nil {
-				log.WithError(err).Error("failed to login to caldera")
-				os.Exit(1)
+				log.WithError(err).Fatal("failed to login to caldera")
 			}
 
 			caldera.Payload = viper.GetString("payload")
