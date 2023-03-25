@@ -1,8 +1,8 @@
-# File created for debugging with vscode
+# vscode files
 mage_output_file.go
 
-# mage binary
-magefile
+# Generated binaries
+caldera-security-tests*
 
 # Code coverage output file
 coverage-all.out
@@ -16,5 +16,5 @@ config/*
 # Generated images
 images/*.png
 
-# Generated  log files
+# Generated log files
 *.log

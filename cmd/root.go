@@ -169,15 +169,13 @@ func initConfig() {
 				fmt.Sprintf("%s.%s", defaultConfigName, defaultConfigType)))
 
 		if err != nil {
-			log.WithError(err).Error(
+			log.WithError(err).Fatal(
 				"failed to create the config file")
-			os.Exit(1)
 		}
 
 		if err = viper.ReadInConfig(); err != nil {
-			log.WithError(err).Error(
+			log.WithError(err).Fatal(
 				"error reading config file")
-			os.Exit(1)
 		} else {
 			log.Debug("Using config file: ",
 				viper.ConfigFileUsed())

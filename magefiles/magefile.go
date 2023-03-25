@@ -95,18 +95,6 @@ func InstallDeps() error {
 	return nil
 }
 
-// InstallPreCommitHooks Installs pre-commit hooks locally
-func InstallPreCommitHooks() error {
-	mg.Deps(InstallDeps)
-
-	fmt.Println(color.YellowString("Installing pre-commit hooks."))
-	if err := goutils.InstallPCHooks(); err != nil {
-		return err
-	}
-
-	return nil
-}
-
 // RunPreCommit runs all pre-commit hooks locally
 func RunPreCommit() error {
 	mg.Deps(InstallDeps)

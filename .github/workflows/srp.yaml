@@ -39,22 +39,17 @@ jobs:
     steps:
       - name: Set up git repository
         uses: actions/checkout@v3
-        with:
-          repository: fbsamples/caldera-security-tests
 
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: 1.19
+          go-version: "1.20"
 
       - name: Install chrome
         uses: browser-actions/setup-chrome@latest
 
-      - name: Install mage
-        run: go install github.com/magefile/mage@latest
-
       - name: Compile binary
-        run: mage compile linux
+        run: go build
 
       - name: Set git config
         run: |
@@ -67,14 +62,10 @@ jobs:
           git clone https://github.com/mitre/caldera.git --recursive caldera-latest
           popd
 
-      - name: Create test environment
-        run: ./bin/cst-linux TestEnv -r
+      - name: Create test environment with the most recent caldera release
+        run: ./caldera-security-tests TestEnv -r
 
-      - name: Sleep for 20 seconds
-        run: sleep 20s
-        shell: bash
-
-      - name: Make sure the container is running
+      - name: Wait until container is running
         run: |
           while [[ -z "$(curl --silent localhost:8888 | grep 'login.js')" ]]; do
             pushd ../caldera-latest && docker compose down && docker compose up -d; popd
@@ -83,21 +74,13 @@ jobs:
         shell: bash
 
       - name: Run security regression test for first XSS
-        run: ./bin/cst-linux StoredXSSUno
-      
-      - name: Setup tmate session
-        if: ${{ failure() }}
-        # Only allow access using your registered public keys
-        # in github
-        with:
-          limit-access-to-actor: true
-        uses: mxschmitt/action-tmate@v3
+        run: ./caldera-security-tests StoredXSSUno
 
-      # - name: Run security regression test for second XSS
-      #   run: ./bin/cst-linux StoredXSSDos
+      - name: Run security regression test for second XSS
+        run: ./caldera-security-tests StoredXSSDos
 
       - name: Destroy test environment
-        run: ./bin/cst-linux TestEnv -d
+        run: ./caldera-security-tests TestEnv -d
 
       - name: Report failure
         uses: nashmaniac/create-issue-action@v1.1
