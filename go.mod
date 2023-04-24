@@ -3,7 +3,7 @@ module github.com/fbsamples/caldera-security-tests
 go 1.20
 
 require (
-	github.com/bitfield/script v0.21.4
+	github.com/bitfield/script v0.22.0
 	github.com/chromedp/cdproto v0.0.0-20230220211738-2b1ec77315c9
 	github.com/chromedp/chromedp v0.9.1
 	github.com/fatih/color v1.15.0
@@ -15,7 +15,6 @@ require (
 )
 
 require (
-	bitbucket.org/creachadair/shell v0.0.7 // indirect
 	github.com/Microsoft/go-winio v0.6.0 // indirect
 	github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8 // indirect
 	github.com/acomagu/bufpipe v1.0.4 // indirect
@@ -76,4 +75,5 @@ require (
 	gopkg.in/warnings.v0 v0.1.2 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
+	mvdan.cc/sh/v3 v3.6.0 // indirect
 )
