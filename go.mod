@@ -8,7 +8,7 @@ require (
 	github.com/chromedp/chromedp v0.9.1
 	github.com/fatih/color v1.15.0
 	github.com/l50/goutils v1.2.5
-	github.com/magefile/mage v1.14.0
+	github.com/magefile/mage v1.15.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/spf13/cobra v1.7.0
 	github.com/spf13/viper v1.14.0
