@@ -24,9 +24,10 @@ package cmd
 
 import (
 	"context"
+	"crypto/rand"
 	"embed"
 	"fmt"
-	"math/rand"
+	"math/big"
 	"os"
 	"path"
 	"time"
@@ -103,7 +104,17 @@ func init() {
 // of time.
 func Wait(near float64) time.Duration {
 	zoom := int(near / 10)
-	x := rand.Intn(zoom) + int(0.95*near)
+
+	max := big.NewInt(int64(zoom))
+	n, err := rand.Int(rand.Reader, max)
+	if err != nil {
+		log.WithError(err).Errorf(
+			"failed to wait: %v", err)
+		return time.Duration(0)
+	}
+
+	x := n.Int64() + int64(0.95*near)
+
 	return time.Duration(x) * time.Millisecond
 }
 

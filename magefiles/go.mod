@@ -15,7 +15,7 @@ require (
 	github.com/acomagu/bufpipe v1.0.3 // indirect
 	github.com/bitfield/script v0.20.2 // indirect
 	github.com/cavaliergopher/grab/v3 v3.0.1 // indirect
-	github.com/cloudflare/circl v1.2.0 // indirect
+	github.com/cloudflare/circl v1.3.3 // indirect
 	github.com/emirpasic/gods v1.18.1 // indirect
 	github.com/glendc/go-external-ip v0.1.0 // indirect
 	github.com/go-git/gcfg v1.5.0 // indirect
@@ -31,7 +31,7 @@ require (
 	github.com/mitchellh/go-homedir v1.1.0 // indirect
 	github.com/sergi/go-diff v1.2.0 // indirect
 	github.com/xanzy/ssh-agent v0.3.2 // indirect
-	golang.org/x/crypto v0.0.0-20220829220503-c86fa9a7ed90 // indirect
+	golang.org/x/crypto v0.3.1-0.20221117191849-2c476679df9a // indirect
 	golang.org/x/net v0.7.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
