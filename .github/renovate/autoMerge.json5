@@ -1,0 +1,20 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "packageRules": [
+    {
+      "description": "Auto merge GitHub Actions",
+      "matchDatasources": ["gomod"],
+      "automerge": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["digest"]
+    },
+    {
+      "description": "Auto-merge GitHub Actions for minor and patch",
+      "matchManagers": ["github-actions"],
+      "matchDatasources": ["github-tags"],
+      "automerge": true,
+      "automergeType": "branch",
+      "matchUpdateTypes": ["minor", "patch"]
+    },
+  ]
+}

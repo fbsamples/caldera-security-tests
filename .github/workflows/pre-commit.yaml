@@ -1,61 +1,56 @@
 ---
 name: Pre-Commit
 on:
-  pull_request:
   push:
-    branches: [main]
+  pull_request:
+    types:
+      - opened
+      - synchronize
   # Run once a week (see https://crontab.guru)
   schedule:
     - cron: "0 0 * * 0"
-
+  workflow_dispatch:
 jobs:
   pre-commit:
     name: Update pre-commit hooks and run pre-commit
     runs-on: ubuntu-latest
     steps:
       - name: Set up git repository
-        uses: actions/checkout@v3.1.0
+        uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11 # v4.1.1
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5
         with:
-          python-version: "3.10"
+          python-version: "3.x"
 
       - name: Set up Go
-        uses: actions/setup-go@v4
+        uses: actions/setup-go@0c52d547c9bc32b1aa3301fd7a9cb496313a4491 # v5
         with:
-          go-version: "1.20"
-
-      - name: Install homebrew
-        uses: homebrew/actions/setup-homebrew@master
+          go-version: "1.21.5"
 
       - name: Install go module dependencies
         run: |
           go install mvdan.cc/sh/v3/cmd/shfmt@latest
           go install github.com/magefile/mage@latest
 
-      - name: Install brew dependencies
-        run: |
-          brew install pre-commit
-          brew install shellcheck
+      - name: Install pre-commit
+        run: pip3 install pre-commit
 
-      - name: Run go mod tidy - necessary to avoid errors with dependabot PRs
+      - name: Run go mod tidy - necessary to avoid errors with renovatebot PRs
         run: |
           go mod tidy
           pushd magefiles; go mod tidy; popd
 
+      - name: Commit go.mod and go.sum changes to keep pre-commit happy
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          git add go.mod go.sum magefiles/go.mod magefiles/go.sum
+          git diff --quiet && git diff --staged --quiet || \
+            git commit -m "Update go.mod and go.sum"
+
       - name: Install pre-commit dependencies
         run: mage installDeps
 
-      - name: Run pre-commit autoupdate action
-        uses: browniebroke/pre-commit-autoupdate-action@main
-
-      - name: Create Pull Request with updates
-        uses: peter-evans/create-pull-request@v5
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: main
-          branch: update/pre-commit-hooks
-          title: Update pre-commit hooks
-          commit-message: "chore: update pre-commit hooks"
-          body: Update versions of pre-commit hooks to latest version.
+      - name: Run pre-commit
+        run: mage runPreCommit
