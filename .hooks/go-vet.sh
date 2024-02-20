@@ -1,19 +1,11 @@
 #!/bin/bash
-set -ex
+set -e
 
-pkg=$(go list ./...)
-for dir in */; do
-    if [[ "${dir}" != ".mage" ]] \
-                              && [[ "${dir}" != ".hooks/" ]] \
-                              && [[ "${dir}" != "config/" ]] \
-                              && [[ "${dir}" != "docs/" ]] \
-                              && [[ "${dir}" != "magefiles/" ]] \
-                              && [[ "${dir}" != "cmd/" ]] \
-                              && [[ "${dir}" != "bin/" ]] \
-                              && [[ "${dir}" != "images/" ]] \
-                              && [[ "${dir}" != "resources/" ]] \
-                              && [[ "${dir}" != "files/" ]] \
-                              && [[ "${dir}" != "logs/" ]]; then
-        go vet "${pkg}/${dir}"
+pkgs=$(go list ./...)
+
+for pkg in $pkgs; do
+    dir="$(basename "$pkg")/"
+    if [[ "${dir}" != .*/ ]] && [[ "${dir}" != "magefiles/" ]]; then
+        go vet "${pkg}"
     fi
 done

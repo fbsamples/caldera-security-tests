@@ -1,25 +1,3 @@
-/*
-Copyright © 2022-present, Meta Platforms, Inc. and affiliates
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-
 package cmd
 
 import (
@@ -106,6 +84,33 @@ type Payload struct {
 	Visibility         string `json:"visibility"`
 }
 
+func sendPayloadRequest(data Payload, sinkURL string, cookie *network.Cookie) error {
+	payloadBytes, err := json.Marshal(data)
+	if err != nil {
+		log.WithError(err).Error("failed to marshal payload")
+		return err
+	}
+	body := bytes.NewReader(payloadBytes)
+
+	req, err := http.NewRequest("POST", sinkURL, body)
+	if err != nil {
+		log.WithError(err).Error("failed to create request")
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Cookie", fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.101 Safari/537.36")
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.WithError(err).Error("failed to submit request")
+		return err
+	}
+	defer resp.Body.Close()
+
+	return nil
+}
+
 func storedXSSDosVuln(payload string) error {
 	var buf []byte
 	var res *runtime.RemoteObject
@@ -130,29 +135,9 @@ func storedXSSDosVuln(payload string) error {
 				return err
 			}
 			for _, cookie := range cookies {
-				payloadBytes, err := json.Marshal(data)
-				if err != nil {
-					log.WithError(err).Error("failed to marshal payload")
+				if err := sendPayloadRequest(data, sinkURL, cookie); err != nil {
 					return err
 				}
-				body := bytes.NewReader(payloadBytes)
-
-				req, err := http.NewRequest("POST", sinkURL, body)
-				if err != nil {
-					log.WithError(err).Error("failed to create request")
-					return err
-				}
-				req.Header.Set("Content-Type", "application/json")
-				req.Header.Set("Cookie", fmt.Sprintf("%s=%s", cookie.Name, cookie.Value))
-				req.Header.Set("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.101 Safari/537.36")
-
-				resp, err := http.DefaultClient.Do(req)
-				if err != nil {
-					log.WithError(err).Error("failed to submit request")
-					return err
-				}
-				defer resp.Body.Close()
-
 			}
 
 			return nil

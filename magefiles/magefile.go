@@ -9,10 +9,16 @@ import (
 	"path/filepath"
 
 	"github.com/fatih/color"
-	goutils "github.com/l50/goutils"
+	"github.com/l50/goutils/v2/dev/lint"
+	mageutils "github.com/l50/goutils/v2/dev/mage"
+	"github.com/l50/goutils/v2/docs"
+	"github.com/l50/goutils/v2/git"
+	"github.com/l50/goutils/v2/str"
+	"github.com/l50/goutils/v2/sys"
+	"github.com/spf13/afero"
 
 	// mage utility functions
-	"github.com/magefile/mage/mg"
+
 	"github.com/magefile/mage/sh"
 )
 
@@ -41,7 +47,7 @@ func Compile(ctx context.Context, osCli string) error {
 
 	if osCli == "all" {
 		operatingSystems = supportedOS
-	} else if goutils.StringInSlice(osCli, supportedOS) {
+	} else if str.InSlice(osCli, supportedOS) {
 		operatingSystems = []string{osCli}
 	}
 
@@ -73,21 +79,44 @@ func Compile(ctx context.Context, osCli string) error {
 	return nil
 }
 
-// InstallDeps Installs go dependencies
+// InstallDeps installs the Go dependencies necessary for developing
+// on the project.
+//
+// Example usage:
+//
+// ```go
+// mage installdeps
+// ```
+//
+// **Returns:**
+//
+// error: An error if any issue occurs while trying to
+// install the dependencies.
 func InstallDeps() error {
+	fmt.Println(color.YellowString("Running go mod tidy on magefiles and repo root."))
+	cwd := sys.Gwd()
+	if err := sys.Cd("magefiles"); err != nil {
+		return fmt.Errorf("failed to cd into magefiles directory: %v", err)
+	}
+
+	if err := mageutils.Tidy(); err != nil {
+		return fmt.Errorf("failed to install dependencies: %v", err)
+	}
+
+	if err := sys.Cd(cwd); err != nil {
+		return fmt.Errorf("failed to cd back into repo root: %v", err)
+	}
+
+	if err := mageutils.Tidy(); err != nil {
+		return fmt.Errorf("failed to install dependencies: %v", err)
+	}
+
 	fmt.Println(color.YellowString("Installing dependencies."))
-
-	if err := goutils.Tidy(); err != nil {
-		return fmt.Errorf(color.RedString(
-			"failed to install dependencies: %v", err))
+	if err := lint.InstallGoPCDeps(); err != nil {
+		return fmt.Errorf("failed to install pre-commit dependencies: %v", err)
 	}
 
-	if err := goutils.InstallGoPCDeps(); err != nil {
-		return fmt.Errorf(color.RedString(
-			"failed to install pre-commit dependencies: %v", err))
-	}
-
-	if err := goutils.InstallVSCodeModules(); err != nil {
+	if err := mageutils.InstallVSCodeModules(); err != nil {
 		return fmt.Errorf(color.RedString(
 			"failed to install vscode-go modules: %v", err))
 	}
@@ -95,23 +124,75 @@ func InstallDeps() error {
 	return nil
 }
 
-// RunPreCommit runs all pre-commit hooks locally
+// RunPreCommit updates, clears, and executes all pre-commit hooks
+// locally. The function follows a three-step process:
+//
+// First, it updates the pre-commit hooks.
+// Next, it clears the pre-commit cache to ensure a clean environment.
+// Lastly, it executes all pre-commit hooks locally.
+//
+// Example usage:
+//
+// ```go
+// mage runprecommit
+// ```
+//
+// **Returns:**
+//
+// error: An error if any issue occurs at any of the three stages
+// of the process.
 func RunPreCommit() error {
-	mg.Deps(InstallDeps)
+	if !sys.CmdExists("pre-commit") {
+		return fmt.Errorf("pre-commit is not installed")
+	}
+
 	fmt.Println(color.YellowString("Updating pre-commit hooks."))
-	if err := goutils.UpdatePCHooks(); err != nil {
+	if err := lint.UpdatePCHooks(); err != nil {
 		return err
 	}
 
-	fmt.Println(color.YellowString(
-		"Clearing the pre-commit cache to ensure we have a fresh start."))
-	if err := goutils.ClearPCCache(); err != nil {
+	fmt.Println(color.YellowString("Clearing the pre-commit cache to ensure we have a fresh start."))
+	if err := lint.ClearPCCache(); err != nil {
 		return err
 	}
 
 	fmt.Println(color.YellowString("Running all pre-commit hooks locally."))
-	if err := goutils.RunPCHooks(); err != nil {
+	if err := lint.RunPCHooks(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+// GeneratePackageDocs creates documentation for the various packages
+// in the project.
+//
+// Example usage:
+//
+// ```go
+// mage generatepackagedocs
+// ```
+//
+// **Returns:**
+//
+// error: An error if any issue occurs during documentation generation.
+func GeneratePackageDocs() error {
+	fs := afero.NewOsFs()
+
+	repoRoot, err := git.RepoRoot()
+	if err != nil {
+		return fmt.Errorf("failed to get repo root: %v", err)
+	}
+	sys.Cd(repoRoot)
+
+	repo := docs.Repo{
+		Owner: "l50",
+		Name:  "goutils/v2",
+	}
+
+	templatePath := filepath.Join("magefiles", "tmpl", "README.md.tmpl")
+	if err := docs.CreatePackageDocs(fs, repo, templatePath); err != nil {
+		return fmt.Errorf("failed to create package docs: %v", err)
 	}
 
 	return nil

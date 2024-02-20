@@ -1,6 +1,6 @@
 module github.com/fbsamples/caldera-security-tests
 
-go 1.21
+go 1.22
 
 require (
 	github.com/bitfield/script v0.22.0
