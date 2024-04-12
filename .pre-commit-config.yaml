@@ -82,13 +82,6 @@ repos:
         entry: .hooks/go-licenses.sh check_forbidden
         files: '\.go$'
 
-      - id: generate-docs
-        name: Update package docs
-        language: script
-        entry: .hooks/generate-docs.sh
-        require_serial: true
-        files: '\.go$'
-
       - id: go-copyright
         name: Ensure all go files have the copyright header
         language: script
